@@ -137,7 +137,9 @@ class Noark5Client:
         discovery = self._get_json(oidc_url)
         token_endpoint = discovery.get("token_endpoint")
         if not token_endpoint:
-            raise Noark5Error(404, "No token_endpoint in OIDC discovery document", oidc_url)
+            raise Noark5Error(
+                404, "No token_endpoint in OIDC discovery document", oidc_url
+            )
 
         # Step 2: POST credentials to token endpoint.
         self._oidc_meta = discovery
@@ -158,7 +160,9 @@ class Noark5Client:
         # If client_id is set, authenticate the client on the token request.
         if self.client_id:
             cred = f"{self.client_id}:{self._client_secret}"
-            headers["Authorization"] = "Basic " + base64.b64encode(cred.encode()).decode()
+            headers["Authorization"] = (
+                "Basic " + base64.b64encode(cred.encode()).decode()
+            )
 
         req = urllib.request.Request(token_url, data=encoded, headers=headers)
         req.get_method = lambda: "POST"
@@ -177,13 +181,16 @@ class Noark5Client:
             "token_type": token_data.get("token_type", "Bearer"),
             "refresh_token": token_data.get("refresh_token", ""),
             "epoc_expires_in": now + token_data.get("expires_in", 3600),
-            "epoc_refresh_expires_in": now + token_data.get("refresh_expires_in", 86400),
+            "epoc_refresh_expires_in": now
+            + token_data.get("refresh_expires_in", 86400),
         }
         if self.client_id:
             self._oidc_info["client_id"] = self.client_id
 
         # Set initial bearer token.
-        self._token = f"{self._oidc_info['token_type']} {self._oidc_info['access_token']}"
+        self._token = (
+            f"{self._oidc_info['token_type']} {self._oidc_info['access_token']}"
+        )
         root = self._get_json(".")
         self._logged_in = True
         return root
@@ -276,7 +283,9 @@ class Noark5Client:
             "refresh_expires_in", 86400
         )
 
-        self._token = f"{self._oidc_info['token_type']} {self._oidc_info['access_token']}"
+        self._token = (
+            f"{self._oidc_info['token_type']} {self._oidc_info['access_token']}"
+        )
 
     def _auth_headers(self) -> dict[str, str]:
         """Return headers with authentication if logged in.
@@ -290,11 +299,16 @@ class Noark5Client:
             refresh_expires_at = self._oidc_info.get("epoc_refresh_expires_in", 0)
 
             # Renew if access token expires within margin or refresh token is expiring.
-            if (now >= expires_at - OIDC_RENEW_MARGIN or now >= refresh_expires_at - OIDC_RENEW_MARGIN):
+            if (
+                now >= expires_at - OIDC_RENEW_MARGIN
+                or now >= refresh_expires_at - OIDC_RENEW_MARGIN
+            ):
                 if now < refresh_expires_at:
                     self._oidc_renew()
                 else:
-                    raise Noark5Error(401, "OIDC refresh token expired; re-login required", "")
+                    raise Noark5Error(
+                        401, "OIDC refresh token expired; re-login required", ""
+                    )
 
         if self._token:
             headers["Authorization"] = self._token
@@ -311,7 +325,11 @@ class Noark5Client:
         return urljoin(self.base_url, path)
 
     def _request(
-        self, method: str, path: str, data: bytes | None = None, content_type: str | None = None
+        self,
+        method: str,
+        path: str,
+        data: bytes | None = None,
+        content_type: str | None = None,
     ) -> tuple[bytes, "http.client.HTTPResponse"]:
         """Make an HTTP request and return (content_bytes, response)."""
         url = self._expand_url(path)
@@ -391,7 +409,12 @@ class Noark5Client:
         )
         return json.loads(content.decode("utf-8"))
 
-    def upload_file(self, entity_url: str, file_data: bytes, mime_type: str = "application/octet-stream") -> dict:
+    def upload_file(
+        self,
+        entity_url: str,
+        file_data: bytes,
+        mime_type: str = "application/octet-stream",
+    ) -> dict:
         """Upload a file to an entity that has a fil relation key.
 
         Resolves the href of the fil relation (arkivstruktur/fil/) from the entity's _links
@@ -522,7 +545,9 @@ class Noark5Client:
         data = self._get_json(url)
         return data.get("results", [])
 
-    def list_arkivdeler(self, arkiv_url: str, filter_str: str | None = None) -> list[dict]:
+    def list_arkivdeler(
+        self, arkiv_url: str, filter_str: str | None = None
+    ) -> list[dict]:
         """List arkivdel under a specific archive."""
         entity = self._get_json(arkiv_url)
         links = self.parse_links(entity)
@@ -548,7 +573,9 @@ class Noark5Client:
         data = self._get_json(url)
         return data.get("results", [])
 
-    def list_registreringer(self, mappe_url: str, filter_str: str | None = None) -> list[dict]:
+    def list_registreringer(
+        self, mappe_url: str, filter_str: str | None = None
+    ) -> list[dict]:
         """List registrerings under a mappe."""
         entity = self._get_json(mappe_url)
         links = self.parse_links(entity)
@@ -593,7 +620,9 @@ class Noark5Client:
         data = self._get_json(url)
         return data.get("results", [])
 
-    def filter_collection(self, collection_url: str, filter_str: str | None = None) -> list[dict]:
+    def filter_collection(
+        self, collection_url: str, filter_str: str | None = None
+    ) -> list[dict]:
         """List entities in any OData collection with optional filter.
 
         Args:
@@ -665,7 +694,9 @@ class Noark5Client:
 
     # ---- Search operations ----
 
-    def search_entities(self, query: str, filter_str: str | None = None) -> list[tuple[str, str]]:
+    def search_entities(
+        self, query: str, filter_str: str | None = None
+    ) -> list[tuple[str, str]]:
         """Search entities by title across all global collections.
 
         Uses OData $search for full-text title matching, optionally combined
@@ -739,7 +770,9 @@ class Noark5Client:
         """Create an entity at root level (e.g., arkivskaper, arkiv)."""
         url = self.find_relation(RELBASE + ny_rel_suffix)
         if not url:
-            raise Noark5Error(404, f"No {ny_rel_suffix} relation found at root", self.base_url)
+            raise Noark5Error(
+                404, f"No {ny_rel_suffix} relation found at root", self.base_url
+            )
 
         try:
             default = self._get_json(url)
@@ -767,9 +800,7 @@ class Noark5Client:
             data.update(attributes)
         return self._create_at_root("arkivstruktur/ny-arkivskaper/", data)
 
-    def create_arkiv(
-        self, tittel: str, attributes: dict | None = None
-    ) -> dict:
+    def create_arkiv(self, tittel: str, attributes: dict | None = None) -> dict:
         """Create a top-level archive (fonds).
 
         Optional fields: beskrivelse, arkivstatus, dokumentmedium, oppbevaringssted, avsluttetDato, avsluttetAv, referanseAvsluttetAv.
@@ -796,7 +827,11 @@ class Noark5Client:
         )
 
     def create_mappe(
-        self, parent_url: str, tittel: str, beskrivelse: str | None = None, attributes: dict | None = None
+        self,
+        parent_url: str,
+        tittel: str,
+        beskrivelse: str | None = None,
+        attributes: dict | None = None,
     ) -> dict:
         """Create a mappe (file) under a parent.
 
@@ -808,7 +843,9 @@ class Noark5Client:
             data["beskrivelse"] = beskrivelse
         if attributes:
             data.update(attributes)
-        return self._create_entity(parent_url, RELBASE + "arkivstruktur/ny-mappe/", data)
+        return self._create_entity(
+            parent_url, RELBASE + "arkivstruktur/ny-mappe/", data
+        )
 
     def create_registrering(
         self, mappe_url: str, tittel: str, attributes: dict | None = None
@@ -888,7 +925,11 @@ class Noark5Client:
         )
 
     def create_saksmappe(
-        self, parent_url: str, tittel: str, saksaar: int | None = None, attributes: dict | None = None
+        self,
+        parent_url: str,
+        tittel: str,
+        saksaar: int | None = None,
+        attributes: dict | None = None,
     ) -> dict:
         """Create a saksmappe (case file) under an arkivdel.
 
@@ -947,7 +988,9 @@ class Noark5Client:
             etag = etag[1:-1]
         return data, etag
 
-    def _patch_json_with_etag(self, path: str, changes: dict, etag: str | None = None) -> dict:
+    def _patch_json_with_etag(
+        self, path: str, changes: dict, etag: str | None = None
+    ) -> dict:
         """PATCH JSON data with merge semantics and If-Match ETag header."""
         body = json.dumps(changes).encode("utf-8")
         url = self._expand_url(path)
@@ -971,7 +1014,9 @@ class Noark5Client:
         _, etag = self._get_with_etag(entity_path)
         return self._patch_json_with_etag(entity_path, changes, etag)
 
-    def create_secondary_entity(self, parent_url: str, entity_type: str, data: dict) -> dict:
+    def create_secondary_entity(
+        self, parent_url: str, entity_type: str, data: dict
+    ) -> dict:
         """Create a secondary entity (forfatter, noekkelord, etc.) under a parent.
 
         The N5TG API models [0..*] and [1..*] fields like 'forfatter' and 'noekkelord' as
@@ -1021,9 +1066,18 @@ class Noark5Client:
     def entity_type(url: str) -> str:
         """Detect entity type from URL path. Returns e.g., 'arkiv', 'mappe', etc."""
         known = {
-            "klassifikasjonssystem", "dokumentbeskrivelse", "dokumentobjekt",
-            "saksmappe", "arkivskaper", "arkivdel", "registrering",
-            "journalpost", "arkivnotat", "klasse", "mappe", "arkiv",
+            "klassifikasjonssystem",
+            "dokumentbeskrivelse",
+            "dokumentobjekt",
+            "saksmappe",
+            "arkivskaper",
+            "arkivdel",
+            "registrering",
+            "journalpost",
+            "arkivnotat",
+            "klasse",
+            "mappe",
+            "arkiv",
         }
         # Check all path segments, rightmost match wins (handles .../klassifikasjon-system/{id}/).
         for segment in reversed(url.rstrip("/").split("/")):
@@ -1104,16 +1158,20 @@ class Noark5Client:
                 continue
             clean = self.clean_url(href)
             cat_name = rel.rstrip("/").split("/")[-1]  # e.g. "dokumentmedium"
-            catalogs.append({
-                "tittel": cat_name,
-                "_links": {"self": {"href": clean}},
-            })
+            catalogs.append(
+                {
+                    "tittel": cat_name,
+                    "_links": {"self": {"href": clean}},
+                }
+            )
         if filter_str:
             encoded = self._encode_filter(filter_str)
             return [c for c in catalogs if encoded.lower() in c["tittel"].lower()]
         return catalogs
 
-    def list_metadata_poster(self, catalog_name: str, filter_str: str | None = None) -> list[dict]:
+    def list_metadata_poster(
+        self, catalog_name: str, filter_str: str | None = None
+    ) -> list[dict]:
         """List metadata posts (katalogpost) within a specific catalog.
 
         Args:

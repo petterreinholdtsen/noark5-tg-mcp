@@ -38,6 +38,7 @@ from noark5_tg_mcp.client import (
 # with its own _links), and a top-level _links.self.
 # ---------------------------------------------------------------------------
 
+
 def _rel(rel_suffix):
     """Shortcut for building full RELBASE relation URLs."""
     return RELBASE + rel_suffix
@@ -117,7 +118,9 @@ def arkivdel_entity(system_id="ad1", tittel="Bøker"):
             _rel("arkivstruktur/klassifikasjonssystem/"): {
                 "href": f"{base}/klassifikasjonssystem",
             },
-            _rel("arkivstruktur/ny-klassifikasjonssystem/"): {"href": f"{base}/ny-klassifikasjonssystem"},
+            _rel("arkivstruktur/ny-klassifikasjonssystem/"): {
+                "href": f"{base}/ny-klassifikasjonssystem"
+            },
             _rel("arkivstruktur/arkiv/"): {
                 "href": "https://example.com/api/arkivstruktur/arkiv/a1",
             },
@@ -173,7 +176,9 @@ def mappe_collection(items=None):
         "count": len(items),
         "results": items,
         "_links": {
-            "self": {"href": "https://example.com/api/arkivstruktur/arkivdel/ad1/mappe"},
+            "self": {
+                "href": "https://example.com/api/arkivstruktur/arkivdel/ad1/mappe"
+            },
         },
     }
 
@@ -196,7 +201,9 @@ def registrering_entity(system_id="r1", tittel="Printcrime"):
             _rel("arkivstruktur/dokumentbeskrivelse/"): {
                 "href": f"{base}/dokumentbeskrivelse",
             },
-            _rel("arkivstruktur/ny-dokumentbeskrivelse/"): {"href": f"{base}/ny-dokumentbeskrivelse"},
+            _rel("arkivstruktur/ny-dokumentbeskrivelse/"): {
+                "href": f"{base}/ny-dokumentbeskrivelse"
+            },
             _rel("arkivstruktur/mappe/"): {
                 "href": "https://example.com/api/arkivstruktur/mappe/mp1",
             },
@@ -207,12 +214,17 @@ def registrering_entity(system_id="r1", tittel="Printcrime"):
 def registrering_collection(items=None):
     """Build a realistic registrering collection response."""
     if items is None:
-        items = [registrering_entity("r1", "Printcrime"), registrering_entity("r2", "Little Brother")]
+        items = [
+            registrering_entity("r1", "Printcrime"),
+            registrering_entity("r2", "Little Brother"),
+        ]
     return {
         "count": len(items),
         "results": items,
         "_links": {
-            "self": {"href": "https://example.com/api/arkivstruktur/mappe/mp1/registrering"},
+            "self": {
+                "href": "https://example.com/api/arkivstruktur/mappe/mp1/registrering"
+            },
         },
     }
 
@@ -234,7 +246,9 @@ def dokumentbeskrivelse_entity(system_id="db1", tittel="printcrime.epub"):
             _rel("arkivstruktur/dokumentobjekt/"): {
                 "href": f"{base}/dokumentobjekt",
             },
-            _rel("arkivstruktur/ny-dokumentobjekt/"): {"href": f"{base}/ny-dokumentobjekt"},
+            _rel("arkivstruktur/ny-dokumentobjekt/"): {
+                "href": f"{base}/ny-dokumentobjekt"
+            },
         },
     }
 
@@ -247,7 +261,9 @@ def dokumentbeskrivelse_collection(items=None):
         "count": len(items),
         "results": items,
         "_links": {
-            "self": {"href": "https://example.com/api/arkivstruktur/registrering/r1/dokumentbeskrivelse"},
+            "self": {
+                "href": "https://example.com/api/arkivstruktur/registrering/r1/dokumentbeskrivelse"
+            },
         },
     }
 
@@ -280,7 +296,9 @@ def dokumentobjekt_collection(items=None):
         "count": len(items),
         "results": items,
         "_links": {
-            "self": {"href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/db1/dokumentobjekt"},
+            "self": {
+                "href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/db1/dokumentobjekt"
+            },
         },
     }
 
@@ -331,7 +349,9 @@ def root_entity():
     return {
         "_links": {
             "self": {"href": "https://example.com/api/"},
-            _rel("arkivstruktur/arkiv/"): {"href": "https://example.com/api/arkivstruktur/arkiv"},
+            _rel("arkivstruktur/arkiv/"): {
+                "href": "https://example.com/api/arkivstruktur/arkiv"
+            },
             _rel("login/oidc/"): {"href": "https://example.com/api/login/oidc/"},
             _rel("login/rfc7617/"): {"href": "https://example.com/api/login/rfc7617/"},
         },
@@ -414,12 +434,23 @@ class TestEntityDetection(unittest.TestCase):
 
     def test_detect_known_types(self):
         # Test each type with its own URL path (saksmappe uses sakarkiv, not arkivstruktur)
-        self.assertEqual(Noark5Client.entity_type("https://example.com/api/arkivstruktur/arkiv/123"), "arkiv")
-        self.assertEqual(Noark5Client.entity_type("https://example.com/api/arkivstruktur/mappe/abc"), "mappe")
-        self.assertEqual(Noark5Client.entity_type("https://example.com/api/sakarkiv/saksmappe/x1"), "saksmappe")
+        self.assertEqual(
+            Noark5Client.entity_type("https://example.com/api/arkivstruktur/arkiv/123"),
+            "arkiv",
+        )
+        self.assertEqual(
+            Noark5Client.entity_type("https://example.com/api/arkivstruktur/mappe/abc"),
+            "mappe",
+        )
+        self.assertEqual(
+            Noark5Client.entity_type("https://example.com/api/sakarkiv/saksmappe/x1"),
+            "saksmappe",
+        )
 
     def test_detect_unknown(self):
-        self.assertEqual(Noark5Client.entity_type("https://example.com/unknown"), "unknown")
+        self.assertEqual(
+            Noark5Client.entity_type("https://example.com/unknown"), "unknown"
+        )
 
 
 class TestLogin(unittest.TestCase):
@@ -524,7 +555,9 @@ class TestSearch(unittest.TestCase):
                             "tittel": "My Archive",
                             "_links": {
                                 "self": {"href": "http://archive1"},
-                                _rel("arkivstruktur/arkiv/"): {"href": "http://archive1"},
+                                _rel("arkivstruktur/arkiv/"): {
+                                    "href": "http://archive1"
+                                },
                             },
                         },
                     ],
@@ -547,7 +580,9 @@ class TestListOperations(unittest.TestCase):
         # find_relation walks the link tree from root, then returns collection.
         fake_root = {
             "systemID": "root",
-            "_links": {_rel("arkivstruktur/arkiv/"): {"href": "https://example.com/archives"}},
+            "_links": {
+                _rel("arkivstruktur/arkiv/"): {"href": "https://example.com/archives"}
+            },
         }
         mock_get.side_effect = [fake_root, arkiv_collection([])]
         client = Noark5Client("https://example.com/")
@@ -557,7 +592,9 @@ class TestListOperations(unittest.TestCase):
     @patch.object(Noark5Client, "_get_json")
     def test_list_mapper(self, mock_get):
         parent_entity = arkivdel_entity()
-        mapper_response = mappe_collection([mappe_entity("m1", "File 1"), mappe_entity("m2", "File 2")])
+        mapper_response = mappe_collection(
+            [mappe_entity("m1", "File 1"), mappe_entity("m2", "File 2")]
+        )
         mock_get.side_effect = [parent_entity, mapper_response]
 
         client = Noark5Client("https://example.com/")
@@ -573,7 +610,9 @@ class TestFilterUrlConstruction(unittest.TestCase):
     def test_list_arkiv_filter_url(self, mock_get):
         fake_root = {
             "systemID": "root",
-            "_links": {_rel("arkivstruktur/arkiv/"): {"href": "https://example.com/archives"}},
+            "_links": {
+                _rel("arkivstruktur/arkiv/"): {"href": "https://example.com/archives"}
+            },
         }
         mock_get.side_effect = [fake_root, arkiv_collection([])]
         client = Noark5Client("https://example.com/")
@@ -607,7 +646,9 @@ class TestFilterUrlConstruction(unittest.TestCase):
         mock_get.side_effect = [parent_entity, dokumentobjekt_collection([])]
 
         client = Noark5Client("https://example.com/")
-        client.list_dokumentobjekter("http://dokbeskr", filter_str="mimetype eq 'application/pdf'")
+        client.list_dokumentobjekter(
+            "http://dokbeskr", filter_str="mimetype eq 'application/pdf'"
+        )
         call_url = mock_get.call_args_list[1][0][0]
         self.assertIn("$filter=", call_url)
 
@@ -629,10 +670,13 @@ class TestDownloadFile(unittest.TestCase):
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
     def test_download_file_http_error(self, mock_urlopen):
         import urllib.error as urr
+
         err_resp = MagicMock()
         err_resp.read.return_value = b"Not Found"
         err_resp.code = 404
-        mock_urlopen.side_effect = urr.HTTPError("https://example.com/", 404, "Not Found", {}, err_resp)
+        mock_urlopen.side_effect = urr.HTTPError(
+            "https://example.com/", 404, "Not Found", {}, err_resp
+        )
 
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
@@ -672,15 +716,16 @@ class TestUploadFile(unittest.TestCase):
     def test_upload_file_success(self, mock_urlopen, mock_get_json):
         mock_get_json.return_value = {
             "_links": {
-                _rel("arkivstruktur/fil/"): {"href": "https://example.com/dokbeskr/123/referanseFil"},
+                _rel("arkivstruktur/fil/"): {
+                    "href": "https://example.com/dokbeskr/123/referanseFil"
+                },
             },
         }
 
         mock_resp = MagicMock()
-        mock_resp.read.return_value = json.dumps({
-            "systemID": "new-obj-id",
-            "filnavn": "test.epub"
-        }).encode()
+        mock_resp.read.return_value = json.dumps(
+            {"systemID": "new-obj-id", "filnavn": "test.epub"}
+        ).encode()
         mock_urlopen.return_value = mock_resp
 
         client = Noark5Client("https://example.com/", "user", "pass")
@@ -688,7 +733,7 @@ class TestUploadFile(unittest.TestCase):
         result = client.upload_file(
             "https://example.com/dokbeskr/123",
             b"file content",
-            mime_type="application/epub+zip"
+            mime_type="application/epub+zip",
         )
         self.assertEqual(result["systemID"], "new-obj-id")
 
@@ -700,16 +745,21 @@ class TestUploadFile(unittest.TestCase):
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
     def test_upload_file_http_error(self, mock_urlopen, mock_get_json):
         import urllib.error as urr
+
         mock_get_json.return_value = {
             "_links": {
-                _rel("arkivstruktur/fil/"): {"href": "https://example.com/dokbeskr/123/referanseFil"},
+                _rel("arkivstruktur/fil/"): {
+                    "href": "https://example.com/dokbeskr/123/referanseFil"
+                },
             },
         }
 
         err_resp = MagicMock()
         err_resp.read.return_value = b"Forbidden"
         err_resp.code = 403
-        mock_urlopen.side_effect = urr.HTTPError("https://example.com/", 403, "Forbidden", {}, err_resp)
+        mock_urlopen.side_effect = urr.HTTPError(
+            "https://example.com/", 403, "Forbidden", {}, err_resp
+        )
 
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
@@ -736,19 +786,23 @@ class TestUploadFile(unittest.TestCase):
     def test_upload_from_registrering(self, mock_urlopen, mock_get_json):
         mock_get_json.return_value = {
             "_links": {
-                _rel("arkivstruktur/fil/"): {"href": "https://example.com/registrering/r1/referanseFil"},
+                _rel("arkivstruktur/fil/"): {
+                    "href": "https://example.com/registrering/r1/referanseFil"
+                },
             },
         }
 
         mock_resp = MagicMock()
-        mock_resp.read.return_value = json.dumps({
-            "systemID": "new-do-id",
-            "_embedded": {
-                _rel("arkivstruktur/dokumentbeskrivelse/"): {
-                    "systemID": "new-db-id",
+        mock_resp.read.return_value = json.dumps(
+            {
+                "systemID": "new-do-id",
+                "_embedded": {
+                    _rel("arkivstruktur/dokumentbeskrivelse/"): {
+                        "systemID": "new-db-id",
+                    },
                 },
-            },
-        }).encode()
+            }
+        ).encode()
         mock_urlopen.return_value = mock_resp
 
         client = Noark5Client("https://example.com/", "user", "pass")
@@ -756,7 +810,7 @@ class TestUploadFile(unittest.TestCase):
         result = client.upload_file(
             "https://example.com/registrering/r1",
             b"file content",
-            mime_type="text/plain"
+            mime_type="text/plain",
         )
         self.assertEqual(result["systemID"], "new-do-id")
 
@@ -783,6 +837,7 @@ class TestServerUploadFile(unittest.TestCase):
 
         try:
             import noark5_tg_mcp.server as srv
+
             result = srv.noark5_upload_file(
                 entity_url="https://example.com/registrering/r1",
                 file_path=tmp_path,
@@ -797,6 +852,7 @@ class TestServerUploadFile(unittest.TestCase):
 
     def test_upload_missing_file(self):
         import noark5_tg_mcp.server as srv
+
         with self.assertRaises(FileNotFoundError):
             srv.noark5_upload_file(
                 entity_url="https://example.com/registrering/r1",
@@ -818,7 +874,9 @@ class TestClientCreateWithAttributes(unittest.TestCase):
         }
 
         client = Noark5Client("http://example.com/", "user", "pass")
-        result = client.create_arkiv("My Archive", attributes={"beskrivelse": "Test Desc"})
+        result = client.create_arkiv(
+            "My Archive", attributes={"beskrivelse": "Test Desc"}
+        )
         call_data = mock_create.call_args[0][1]
         assert call_data["beskrivelse"] == "Test Desc"
 
@@ -1016,7 +1074,6 @@ class TestClientCreateWithAttributes(unittest.TestCase):
 
 
 class TestClientOidcTokenRequest(unittest.TestCase):
-
     """Test OIDC login token request path."""
 
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
@@ -1040,15 +1097,21 @@ class TestClientOidcTokenRequest(unittest.TestCase):
         mock_resp_token.status = 200
 
         # _login_oidc may make additional calls (auth header check, etc.)
-        mock_urlopen.side_effect = [mock_resp_discovery, mock_resp_token] + [MagicMock(read=lambda: b"{}", status=200)] * 10
+        mock_urlopen.side_effect = [mock_resp_discovery, mock_resp_token] + [
+            MagicMock(read=lambda: b"{}", status=200)
+        ] * 10
 
         client = Noark5Client("http://example.com/", "user", "pass")
-        result = client._login_oidc("http://example.com/.well-known/openid-configuration")
+        result = client._login_oidc(
+            "http://example.com/.well-known/openid-configuration"
+        )
 
         # Check that the token request was made with proper form data.
         token_call = mock_urlopen.call_args_list[1]
         req = token_call[0][0]
-        form_data = req.data.decode("utf-8") if isinstance(req.data, bytes) else str(req.data)
+        form_data = (
+            req.data.decode("utf-8") if isinstance(req.data, bytes) else str(req.data)
+        )
         assert "grant_type=password" in form_data
         assert "username=user" in form_data
 
@@ -1084,6 +1147,7 @@ class TestDownloadTempFile(unittest.TestCase):
         mock_get_client.return_value = mock_client
 
         import noark5_tg_mcp.server as srv
+
         result = srv.noark5_download_dokumentobjekt(
             dokobj_url="https://example.com/dokobj/123",
         )
@@ -1122,7 +1186,9 @@ class TestListChildrenTopLevelGetJson(unittest.TestCase):
             RELBASE + "arkivstruktur/arkiv/": "http://api/arkiv?{?$filter}",
             RELBASE + "arkivstruktur/arkivskaper/": "http://api/arkivskaper?{?$filter}",
         }.get(rel)
-        mock_client._get_json.return_value = {"results": [{"systemID": "a1", "tittel": "Archive 1"}]}
+        mock_client._get_json.return_value = {
+            "results": [{"systemID": "a1", "tittel": "Archive 1"}]
+        }
 
         result = noark5_list_children()
         assert "Archive 1" in result
@@ -1142,11 +1208,16 @@ class TestListChildrenTopLevelGetJson(unittest.TestCase):
             return "http://api/collection?{?$filter}"
 
         mock_client.find_relation.side_effect = find_rel
-        mock_client._get_json.return_value = {"results": [{"systemID": "a1", "tittel": "Archive"}]}
+        mock_client._get_json.return_value = {
+            "results": [{"systemID": "a1", "tittel": "Archive"}]
+        }
 
         result = noark5_list_children()
         assert "Archive" in result
-        assert "arkivskaper" not in result.lower() or "no arkivskapere" not in result.lower()
+        assert (
+            "arkivskaper" not in result.lower()
+            or "no arkivskapere" not in result.lower()
+        )
 
     @patch("noark5_tg_mcp.server._get_client")
     def test_list_children_with_filter(self, mock_get_client):
@@ -1204,7 +1275,8 @@ class TestListChildrenParentGetJson(unittest.TestCase):
             "tittel": "Series 1",
             "_links": {
                 "self": {"href": "http://api/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
             },
         }
 
@@ -1231,8 +1303,10 @@ class TestListChildrenParentGetJson(unittest.TestCase):
             "systemID": "ad1",
             "_links": {
                 "self": {"href": "http://api/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
-                RELBASE + "sakarkiv/saksmappe/": {"href": "http://api/arkivdel/ad1/saksmappe/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
+                RELBASE
+                + "sakarkiv/saksmappe/": {"href": "http://api/arkivdel/ad1/saksmappe/"},
             },
         }
 
@@ -1266,8 +1340,10 @@ class TestEntityLinksClassificationGetJson(unittest.TestCase):
             "tittel": "Mappe 1",
             "_links": {
                 "self": {"href": "http://api/mappe/m1"},
-                RELBASE + "arkivstruktur/ny-registrering/": {
-                    "href": "http://api/mappe/m1/registrering/new?{?$filter}", "templated": True
+                RELBASE
+                + "arkivstruktur/ny-registrering/": {
+                    "href": "http://api/mappe/m1/registrering/new?{?$filter}",
+                    "templated": True,
                 },
             },
         }
@@ -1286,8 +1362,10 @@ class TestEntityLinksClassificationGetJson(unittest.TestCase):
             "systemID": "ad1",
             "_links": {
                 "self": {"href": "http://api/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {
-                    "href": "http://api/mapper?parent=ad1&{?$filter}", "templated": True
+                RELBASE
+                + "arkivstruktur/mappe/": {
+                    "href": "http://api/mapper?parent=ad1&{?$filter}",
+                    "templated": True,
                 },
             },
         }
@@ -1358,10 +1436,16 @@ class TestFilterEntitiesToolGetJson(unittest.TestCase):
 
         mock_client = mock_get_client.return_value
         mock_client.filter_collection.return_value = [
-            {"systemID": "e1", "tittel": "Entity One", "_links": {"self": {"href": "http://api/e1"}}},
+            {
+                "systemID": "e1",
+                "tittel": "Entity One",
+                "_links": {"self": {"href": "http://api/e1"}},
+            },
         ]
 
-        result = noark5_filter_entities("http://api/mapper?{?$filter}", "contains(tittel, 'One')")
+        result = noark5_filter_entities(
+            "http://api/mapper?{?$filter}", "contains(tittel, 'One')"
+        )
         assert "Entity One" in result
         assert "e1" in result
 
@@ -1373,7 +1457,9 @@ class TestFilterEntitiesToolGetJson(unittest.TestCase):
         mock_client = mock_get_client.return_value
         mock_client.filter_collection.return_value = []
 
-        result = noark5_filter_entities("http://api/mapper?{?$filter}", "contains(tittel, 'X')")
+        result = noark5_filter_entities(
+            "http://api/mapper?{?$filter}", "contains(tittel, 'X')"
+        )
         assert "No entities found" in result
         assert "matching filter" in result or "X" in result
 
@@ -1512,8 +1598,12 @@ class TestClientFindRelationDuplicates(unittest.TestCase):
             return {
                 "_links": {
                     "self": {"href": url if url != "." else "http://api/"},
-                    RELBASE + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
-                    RELBASE + "arkivstruktur/arkivdel/": {"href": "http://api/arkivdel?{?$filter}"},
+                    RELBASE
+                    + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
+                    RELBASE
+                    + "arkivstruktur/arkivdel/": {
+                        "href": "http://api/arkivdel?{?$filter}"
+                    },
                 },
             }
 
@@ -1552,9 +1642,14 @@ class TestClientSearchEntities(unittest.TestCase):
 
         def get_json_side_effect(url):
             if "$search=" in url:
-                return {"results": [
-                    {"_links": {"self": {"href": "http://api/item1"}}, "tittel": "Found Item"},
-                ]}
+                return {
+                    "results": [
+                        {
+                            "_links": {"self": {"href": "http://api/item1"}},
+                            "tittel": "Found Item",
+                        },
+                    ]
+                }
             return {
                 "_links": {
                     "self": {"href": "http://api/" if url == "." else url},
@@ -1581,7 +1676,9 @@ class TestClientCreateEntityNoRelation(unittest.TestCase):
         }
 
         with self.assertRaises(Noark5Error):
-            client._create_entity("http://api/mappe/m1", RELBASE + "arkivstruktur/ny-registrering/", {})
+            client._create_entity(
+                "http://api/mappe/m1", RELBASE + "arkivstruktur/ny-registrering/", {}
+            )
 
 
 class TestClientCreateEntityWithTemplate(unittest.TestCase):
@@ -1597,7 +1694,8 @@ class TestClientCreateEntityWithTemplate(unittest.TestCase):
             "systemID": "m1",
             "_links": {
                 "self": {"href": "http://api/mappe/m1"},
-                RELBASE + "arkivstruktur/ny-registrering/": {"href": "http://api/reg/new"},
+                RELBASE
+                + "arkivstruktur/ny-registrering/": {"href": "http://api/reg/new"},
             },
         }
 
@@ -1650,7 +1748,10 @@ class TestClientCreateAtRootWithTemplate(unittest.TestCase):
             "systemID": "root",
             "_links": {
                 "self": {"href": "http://api/"},
-                RELBASE + "arkivstruktur/ny-arkivskaper/": {"href": "http://api/arkivskaper/new"},
+                RELBASE
+                + "arkivstruktur/ny-arkivskaper/": {
+                    "href": "http://api/arkivskaper/new"
+                },
             },
         }
 
@@ -1665,7 +1766,9 @@ class TestClientCreateAtRootWithTemplate(unittest.TestCase):
 
         with patch.object(client, "_post_json") as mock_post:
             mock_post.return_value = {"systemID": "new-ak"}
-            client._create_at_root("arkivstruktur/ny-arkivskaper/", {"arkivskaperID": "test"})
+            client._create_at_root(
+                "arkivstruktur/ny-arkivskaper/", {"arkivskaperID": "test"}
+            )
             call_args = mock_post.call_args[0][1]
             self.assertEqual(call_args["beskrivelse"], "Default creator")
 
@@ -1686,7 +1789,10 @@ class TestClientListArkvieFilter(unittest.TestCase):
             elif url == ".":
                 return {
                     "_links": {
-                        RELBASE + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
+                        RELBASE
+                        + "arkivstruktur/arkiv/": {
+                            "href": "http://api/arkiv?{?$filter}"
+                        },
                     },
                 }
             raise Noark5Error(404, "Not found", str(url))
@@ -1862,7 +1968,8 @@ class TestServerListChildrenParentUrlWithFilter(unittest.TestCase):
             "systemID": "ad1",
             "_links": {
                 "self": {"href": "http://api/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {"href": "http://api/arkivdel/ad1/mappe/"},
             },
         }
 
@@ -1876,7 +1983,8 @@ class TestServerListChildrenParentUrlWithFilter(unittest.TestCase):
         mock_client._get_json.side_effect = get_json
 
         result = noark5_list_children(
-            parent_url="http://api/arkivdel/ad1", filter_str="contains(tittel, 'Filter')"
+            parent_url="http://api/arkivdel/ad1",
+            filter_str="contains(tittel, 'Filter')",
         )
         self.assertIn("Filtered Mappe", result)
 
@@ -1895,7 +2003,10 @@ class TestClientListArkvieWithResults(unittest.TestCase):
             elif url == ".":
                 return {
                     "_links": {
-                        RELBASE + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
+                        RELBASE
+                        + "arkivstruktur/arkiv/": {
+                            "href": "http://api/arkiv?{?$filter}"
+                        },
                     },
                 }
             raise Noark5Error(404, "Not found", str(url))
@@ -1918,15 +2029,22 @@ class TestClientSearchWithFilter(unittest.TestCase):
             if "$filter=" in str(url):
                 filter_used[0] = True
             elif "$search=" in str(url):
-                return {"results": [{"_links": {"self": {"href": "http://api/1"}}, "tittel": "Item"}]}
+                return {
+                    "results": [
+                        {"_links": {"self": {"href": "http://api/1"}}, "tittel": "Item"}
+                    ]
+                }
             return {
                 "_links": {
-                    RELBASE + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
+                    RELBASE
+                    + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
                 },
             }
 
         mock_get_json.side_effect = get_json_side_effect
-        client.search_entities("test", filter_str="opprettetDato ge 2024-01-01T00:00:00Z")
+        client.search_entities(
+            "test", filter_str="opprettetDato ge 2024-01-01T00:00:00Z"
+        )
         self.assertTrue(filter_used[0])
 
 
@@ -1945,15 +2063,14 @@ class TestClientSearchNoark5Error(unittest.TestCase):
                 raise Noark5Error(400, "Bad request", url)
             return {
                 "_links": {
-                    RELBASE + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
+                    RELBASE
+                    + "arkivstruktur/arkiv/": {"href": "http://api/arkiv?{?$filter}"},
                 },
             }
 
         mock_get_json.side_effect = get_json_side_effect
         result = client.search_entities("test")
         self.assertEqual(result, [])
-
-
 
 
 class TestCreateSecondaryEntity(unittest.TestCase):
@@ -1995,7 +2112,6 @@ class TestCreateSecondaryEntity(unittest.TestCase):
         self.assertEqual(result["noekkelord"], "science fiction")
 
 
-
 class TestSecondaryEntityRelation(unittest.TestCase):
     """Test _secondary_entity_relation uses correct relation base."""
 
@@ -2016,7 +2132,6 @@ class TestSecondaryEntityRelation(unittest.TestCase):
         self.assertEqual(rel, NIKITA_RELBASE + "ny-noekkelord/")
 
 
-
 class TestUpdateEntity(unittest.TestCase):
     """Test update_entity uses merge PATCH instead of PUT."""
 
@@ -2024,7 +2139,10 @@ class TestUpdateEntity(unittest.TestCase):
     @patch.object(Noark5Client, "_patch_json_with_etag")
     def test_update_uses_patch(self, mock_patch, mock_get_etag):
         mock_get_etag.return_value = ({"tittel": "Old"}, '"abc123"')
-        mock_patch.return_value = {"tittel": "New", "_links": {"self": {"href": "https://example.com/mappe/456"}}}
+        mock_patch.return_value = {
+            "tittel": "New",
+            "_links": {"self": {"href": "https://example.com/mappe/456"}},
+        }
 
         client = Noark5Client("https://example.com/")
         result = client.update_entity("/mappe/456", {"tittel": "New"})
@@ -2036,7 +2154,10 @@ class TestUpdateEntity(unittest.TestCase):
         import urllib.request
         from unittest.mock import MagicMock
 
-        mock_get_etag.return_value = ({"tittel": "Old", "beskrivelse": "Existing"}, '"etag123"')
+        mock_get_etag.return_value = (
+            {"tittel": "Old", "beskrivelse": "Existing"},
+            '"etag123"',
+        )
 
         client = Noark5Client("https://example.com/")
         sent_body = []
@@ -2046,7 +2167,9 @@ class TestUpdateEntity(unittest.TestCase):
         def fake_urlopen(req):
             sent_body.append(req.data)
             resp = MagicMock()
-            resp.read.return_value = json.dumps({"tittel": "New", "beskrivelse": "Existing"}).encode("utf-8")
+            resp.read.return_value = json.dumps(
+                {"tittel": "New", "beskrivelse": "Existing"}
+            ).encode("utf-8")
             return resp
 
         with patch.object(urllib.request, "urlopen", fake_urlopen):
@@ -2062,10 +2185,12 @@ class TestFilterCollection(unittest.TestCase):
 
     @patch.object(Noark5Client, "_get_json")
     def test_filter_collection_no_filter(self, mock_get):
-        mock_get.return_value = dokumentobjekt_collection([
-            dokumentobjekt_entity("1", "a.epub"),
-            dokumentobjekt_entity("2", "b.pdf"),
-        ])
+        mock_get.return_value = dokumentobjekt_collection(
+            [
+                dokumentobjekt_entity("1", "a.epub"),
+                dokumentobjekt_entity("2", "b.pdf"),
+            ]
+        )
 
         client = Noark5Client("https://example.com/")
         result = client.filter_collection("/dokumentobjekt")
@@ -2073,9 +2198,11 @@ class TestFilterCollection(unittest.TestCase):
 
     @patch.object(Noark5Client, "_get_json")
     def test_filter_collection_with_filter(self, mock_get):
-        mock_get.return_value = dokumentobjekt_collection([
-            dokumentobjekt_entity("1", "a.epub"),
-        ])
+        mock_get.return_value = dokumentobjekt_collection(
+            [
+                dokumentobjekt_entity("1", "a.epub"),
+            ]
+        )
 
         client = Noark5Client("https://example.com/")
         result = client.filter_collection(
@@ -2092,7 +2219,9 @@ class TestFilterCollection(unittest.TestCase):
         mock_get.return_value = dokumentobjekt_collection([])
 
         client = Noark5Client("https://example.com/")
-        result = client.filter_collection("/dokumentobjekt", filter_str="mimetype eq 'text/plain'")
+        result = client.filter_collection(
+            "/dokumentobjekt", filter_str="mimetype eq 'text/plain'"
+        )
         self.assertEqual(result, [])
 
 
@@ -2102,7 +2231,9 @@ class TestListDokumentobjekter(unittest.TestCase):
     @patch.object(Noark5Client, "_get_json")
     def test_list_dokobj_all(self, mock_get):
         parent = dokumentbeskrivelse_entity()
-        collection = dokumentobjekt_collection([dokumentobjekt_entity("1", "a.epub"), dokumentobjekt_entity("2", "b.pdf")])
+        collection = dokumentobjekt_collection(
+            [dokumentobjekt_entity("1", "a.epub"), dokumentobjekt_entity("2", "b.pdf")]
+        )
         mock_get.side_effect = [parent, collection]
 
         client = Noark5Client("https://example.com/")
@@ -2151,7 +2282,9 @@ class TestServerNewTools(unittest.TestCase):
     def test_format_list_includes_mime(self):
         from noark5_tg_mcp.server import _format_list
 
-        items = dokumentobjekt_collection([dokumentobjekt_entity("1", "a.epub")])["results"]
+        items = dokumentobjekt_collection([dokumentobjekt_entity("1", "a.epub")])[
+            "results"
+        ]
         result = _format_list(items, "dokumentobjekt")
         self.assertIn("Found 1 dokumentobjekt(s)", result)
         self.assertIn("[1]", result)
@@ -2166,9 +2299,15 @@ class TestArkivnotat(unittest.TestCase):
         collection = {
             "count": 1,
             "results": [
-                {"systemID": "n1", "tittel": "Note 1", "_links": {"self": {"href": "http://note1"}}},
+                {
+                    "systemID": "n1",
+                    "tittel": "Note 1",
+                    "_links": {"self": {"href": "http://note1"}},
+                },
             ],
-            "_links": {"self": {"href": "https://example.com/saksmappe/sm1/arkivnotat"}},
+            "_links": {
+                "self": {"href": "https://example.com/saksmappe/sm1/arkivnotat"}
+            },
         }
         mock_get.side_effect = [saksmappe, collection]
 
@@ -2229,7 +2368,9 @@ class TestOidcAuth(unittest.TestCase):
         self.assertEqual(client.auth_method, "basic")
 
     @patch.object(Noark5Client, "_get_json")
-    @patch.object(Noark5Client, "find_relation", return_value="https://oidc.example.com/discovery")
+    @patch.object(
+        Noark5Client, "find_relation", return_value="https://oidc.example.com/discovery"
+    )
     def test_login_oidc_success(self, mock_find_rel, mock_get):
         """OIDC login returns bearer token."""
         import urllib.request
@@ -2244,13 +2385,15 @@ class TestOidcAuth(unittest.TestCase):
             {"_links": {}},  # Root entity after successful login.
         ]
 
-        token_response = json.dumps({
-            "access_token": "test-access-token",
-            "token_type": "Bearer",
-            "expires_in": 3600,
-            "refresh_token": "test-refresh-token",
-            "refresh_expires_in": 86400,
-        }).encode()
+        token_response = json.dumps(
+            {
+                "access_token": "test-access-token",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": "test-refresh-token",
+                "refresh_expires_in": 86400,
+            }
+        ).encode()
 
         def fake_urlopen(req):
             resp = MagicMock()
@@ -2272,7 +2415,9 @@ class TestOidcAuth(unittest.TestCase):
         self.assertEqual(root, {"_links": {}})
 
     @patch.object(Noark5Client, "_get_json")
-    @patch.object(Noark5Client, "find_relation", return_value="https://oidc.example.com/discovery")
+    @patch.object(
+        Noark5Client, "find_relation", return_value="https://oidc.example.com/discovery"
+    )
     def test_login_oidc_with_client_id(self, mock_find_rel, mock_get):
         """OIDC login with client_id includes Authorization header."""
         import urllib.request
@@ -2284,13 +2429,15 @@ class TestOidcAuth(unittest.TestCase):
             {"_links": {}},
         ]
 
-        token_response = json.dumps({
-            "access_token": "tok123",
-            "token_type": "Bearer",
-            "expires_in": 3600,
-            "refresh_token": "ref123",
-            "refresh_expires_in": 86400,
-        }).encode()
+        token_response = json.dumps(
+            {
+                "access_token": "tok123",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": "ref123",
+                "refresh_expires_in": 86400,
+            }
+        ).encode()
 
         captured_auth = None
 
@@ -2354,13 +2501,15 @@ class TestOidcAuth(unittest.TestCase):
             "epoc_refresh_expires_in": now + 86400,
         }
 
-        new_token_response = json.dumps({
-            "access_token": "new-access-token",
-            "token_type": "Bearer",
-            "expires_in": 3600,
-            "refresh_token": "new-refresh-token",
-            "refresh_expires_in": 86400,
-        }).encode()
+        new_token_response = json.dumps(
+            {
+                "access_token": "new-access-token",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": "new-refresh-token",
+                "refresh_expires_in": 86400,
+            }
+        ).encode()
 
         def fake_urlopen(req):
             resp = MagicMock()
@@ -2452,13 +2601,15 @@ class TestAuthDetection(unittest.TestCase):
             {"_links": {}},  # Root after login.
         ]
 
-        token_response = json.dumps({
-            "access_token": "auto-detected-token",
-            "token_type": "Bearer",
-            "expires_in": 3600,
-            "refresh_token": "ref123",
-            "refresh_expires_in": 86400,
-        }).encode()
+        token_response = json.dumps(
+            {
+                "access_token": "auto-detected-token",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": "ref123",
+                "refresh_expires_in": 86400,
+            }
+        ).encode()
 
         def fake_urlopen(req):
             resp = MagicMock()
@@ -2484,7 +2635,9 @@ class TestAuthDetection(unittest.TestCase):
         # Second _get_json call: root after login.
         fake_root = {
             "_links": {
-                _rel("login/rfc7617/"): {"href": "https://example.com/api/login/rfc7617/"},
+                _rel("login/rfc7617/"): {
+                    "href": "https://example.com/api/login/rfc7617/"
+                },
             },
         }
         mock_get.side_effect = [fake_root, {"_links": {}}]
@@ -2531,7 +2684,9 @@ class TestUpdateEntityJson(unittest.TestCase):
         from noark5_tg_mcp.client import Noark5Client, Noark5Error
 
         # Mock GET for etag fetch.
-        with patch.object(Noark5Client, "_get_json", return_value=dokumentbeskrivelse_entity()):
+        with patch.object(
+            Noark5Client, "_get_json", return_value=dokumentbeskrivelse_entity()
+        ):
             client = Noark5Client("https://example.com/", "user", "pass")
             client._logged_in = True
 
@@ -2558,7 +2713,9 @@ class TestUpdateEntityJson(unittest.TestCase):
         """update_entity should still work with simple string values."""
         from noark5_tg_mcp.client import Noark5Client
 
-        with patch.object(Noark5Client, "_get_json", return_value=dokumentbeskrivelse_entity()):
+        with patch.object(
+            Noark5Client, "_get_json", return_value=dokumentbeskrivelse_entity()
+        ):
             client = Noark5Client("https://example.com/", "user", "pass")
             client._logged_in = True
 
@@ -2591,7 +2748,9 @@ class TestSearchDeduplication(unittest.TestCase):
             mock_rel.side_effect = [
                 "https://example.com/api/arkivstruktur/dokumentbeskrivelse/",
                 "https://example.com/api/arkivstruktur/mappe/",
-            ] + [None] * 7  # Remaining collections return None.
+            ] + [
+                None
+            ] * 7  # Remaining collections return None.
 
             # Both collections return the same entity (with realistic structure).
             mock_data = {
@@ -2601,8 +2760,12 @@ class TestSearchDeduplication(unittest.TestCase):
                         "systemID": "abc",
                         "tittel": "Duplicate Entity",
                         "_links": {
-                            "self": {"href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc"},
-                            _rel("arkivstruktur/dokumentbeskrivelse/"): {"href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc"},
+                            "self": {
+                                "href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc"
+                            },
+                            _rel("arkivstruktur/dokumentbeskrivelse/"): {
+                                "href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc"
+                            },
                         },
                     }
                 ],
@@ -2612,8 +2775,10 @@ class TestSearchDeduplication(unittest.TestCase):
 
                 # Should only appear once despite being returned by both collections.
                 self.assertEqual(len(results), 1)
-                self.assertEqual(results[0][0], "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc")
-
+                self.assertEqual(
+                    results[0][0],
+                    "https://example.com/api/arkivstruktur/dokumentbeskrivelse/abc",
+                )
 
     def test_search_with_filter_applies_both(self):
         """search_entities with filter_str applies both $search and $filter."""
@@ -2633,8 +2798,12 @@ class TestSearchDeduplication(unittest.TestCase):
                         "systemID": "xyz",
                         "tittel": "Matched Entity",
                         "_links": {
-                            "self": {"href": "https://example.com/api/arkivstruktur/mappe/xyz"},
-                            _rel("arkivstruktur/mappe/"): {"href": "https://example.com/api/arkivstruktur/mappe/xyz"},
+                            "self": {
+                                "href": "https://example.com/api/arkivstruktur/mappe/xyz"
+                            },
+                            _rel("arkivstruktur/mappe/"): {
+                                "href": "https://example.com/api/arkivstruktur/mappe/xyz"
+                            },
                         },
                     }
                 ],
@@ -2642,12 +2811,16 @@ class TestSearchDeduplication(unittest.TestCase):
 
         with patch.object(client, "find_relation") as mock_rel:
             mock_rel.side_effect = [
-                None, None, None,  # arkiv, arkivdel, klassifikasjonssystem
+                None,
+                None,
+                None,  # arkiv, arkivdel, klassifikasjonssystem
                 "https://example.com/api/arkivstruktur/mappe/",  # mappe — will match
             ] + [None] * 5
 
             with patch.object(client, "_get_json", side_effect=fake_get_json):
-                results = client.search_entities("test", filter_str="contains(tittel, 'Matched')")
+                results = client.search_entities(
+                    "test", filter_str="contains(tittel, 'Matched')"
+                )
 
         self.assertEqual(len(results), 1)
         # Verify URL contains both $search and $filter.
@@ -2669,7 +2842,11 @@ class TestSearchDeduplication(unittest.TestCase):
             captured_urls.append(url)
             return {"count": 0, "results": []}
 
-        with patch.object(client, "find_relation", side_effect=["https://example.com/api/arkivstruktur/mappe/"] + [None] * 8):
+        with patch.object(
+            client,
+            "find_relation",
+            side_effect=["https://example.com/api/arkivstruktur/mappe/"] + [None] * 8,
+        ):
             with patch.object(client, "_get_json", side_effect=fake_get_json):
                 client.search_entities("test")
 
@@ -2691,11 +2868,16 @@ class TestServerUpdateEntityJson(unittest.TestCase):
             mock_client.update_entity.return_value = {
                 "tittel": "Test",
                 "dokumenttype": {"kode": "U"},
-                "_links": {"self": {"href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id"}},
+                "_links": {
+                    "self": {
+                        "href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id"
+                    }
+                },
             }
             mock_get_client.return_value = mock_client
 
             from noark5_tg_mcp.server import noark5_update_entity
+
             result = noark5_update_entity(
                 "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id",
                 '{"dokumenttype": {"kode": "U"}}',
@@ -2715,11 +2897,16 @@ class TestServerUpdateEntityJson(unittest.TestCase):
             mock_client = MagicMock()
             mock_client.update_entity.return_value = {
                 "tittel": "Updated Title",
-                "_links": {"self": {"href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id"}},
+                "_links": {
+                    "self": {
+                        "href": "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id"
+                    }
+                },
             }
             mock_get_client.return_value = mock_client
 
             from noark5_tg_mcp.server import noark5_update_entity
+
             result = noark5_update_entity(
                 "https://example.com/api/arkivstruktur/dokumentbeskrivelse/test-id",
                 '{"tittel": "Updated Title"}',
@@ -2739,11 +2926,16 @@ class TestServerUpdateEntityJson(unittest.TestCase):
             mock_client.update_entity.return_value = {
                 "tittel": "New Title",
                 "beskrivelse": "New Desc",
-                "_links": {"self": {"href": "https://example.com/api/arkivstruktur/mappe/test-id"}},
+                "_links": {
+                    "self": {
+                        "href": "https://example.com/api/arkivstruktur/mappe/test-id"
+                    }
+                },
             }
             mock_get_client.return_value = mock_client
 
             from noark5_tg_mcp.server import noark5_update_entity
+
             result = noark5_update_entity(
                 "https://example.com/api/arkivstruktur/mappe/test-id",
                 '{"tittel": "New Title", "beskrivelse": "New Desc"}',
@@ -2785,12 +2977,16 @@ class TestMetadataClientMethods(unittest.TestCase):
                     metadata_catalog_poster("E", "Elektronisk"),
                     metadata_catalog_poster("F", "Fysisk"),
                 ],
-                "_links": {"self": {"href": "https://example.com/api/metadata/dokumentmedium"}},
+                "_links": {
+                    "self": {"href": "https://example.com/api/metadata/dokumentmedium"}
+                },
             },
         ]
         mock_get.side_effect = side_effects
         client = Noark5Client("https://example.com/api/")
-        with patch.object(client, "find_relation", return_value="https://example.com/api/metadata"):
+        with patch.object(
+            client, "find_relation", return_value="https://example.com/api/metadata"
+        ):
             result = client.list_metadata_poster("dokumentmedium")
         assert len(result) == 2
         assert result[0]["kode"] == "E"
@@ -2802,13 +2998,21 @@ class TestMetadataClientMethods(unittest.TestCase):
             {
                 "count": 1,
                 "results": [metadata_catalog_poster("E", "Elektronisk")],
-                "_links": {"self": {"href": "https://example.com/api/metadata/dokumentmedium?$filter=..."}},
+                "_links": {
+                    "self": {
+                        "href": "https://example.com/api/metadata/dokumentmedium?$filter=..."
+                    }
+                },
             },
         ]
         mock_get.side_effect = side_effects
         client = Noark5Client("https://example.com/api/")
-        with patch.object(client, "find_relation", return_value="https://example.com/api/metadata"):
-            result = client.list_metadata_poster("dokumentmedium", filter_str="kode eq 'E'")
+        with patch.object(
+            client, "find_relation", return_value="https://example.com/api/metadata"
+        ):
+            result = client.list_metadata_poster(
+                "dokumentmedium", filter_str="kode eq 'E'"
+            )
         call_args = mock_get.call_args[0][0]
         assert "?$filter=" in call_args
 
@@ -2816,7 +3020,9 @@ class TestMetadataClientMethods(unittest.TestCase):
     def test_list_metadata_poster_unknown_catalog(self, mock_get):
         mock_get.return_value = {"_links": {}}
         client = Noark5Client("https://example.com/api/")
-        with patch.object(client, "find_relation", return_value="https://example.com/api/metadata"):
+        with patch.object(
+            client, "find_relation", return_value="https://example.com/api/metadata"
+        ):
             try:
                 client.list_metadata_poster("nonexistent")
                 self.fail("Expected Noark5Error")
@@ -2830,13 +3036,19 @@ class TestMetadataClientMethods(unittest.TestCase):
             {  # katalogpost results with filter.
                 "count": 1,
                 "results": [metadata_catalog_poster("E", "Elektronisk")],
-                "_links": {"self": {"href": "https://example.com/api/metadata/dokumentmedium"}},
+                "_links": {
+                    "self": {"href": "https://example.com/api/metadata/dokumentmedium"}
+                },
             },
         ]
         mock_get.side_effect = side_effects
         client = Noark5Client("https://example.com/api/")
-        with patch.object(client, "find_relation", return_value="https://example.com/api/metadata"):
-            result = client.search_metadata("dokumentmedium", "contains(kodenavn, 'Elektronisk')")
+        with patch.object(
+            client, "find_relation", return_value="https://example.com/api/metadata"
+        ):
+            result = client.search_metadata(
+                "dokumentmedium", "contains(kodenavn, 'Elektronisk')"
+            )
         assert len(result) == 1
         assert result[0]["kode"] == "E"
 
@@ -2872,9 +3084,7 @@ class TestMetadataTools:
 
         result = noark5_list_metadata(catalog_name="dokumentmedium")
 
-        mock_client.list_metadata_poster.assert_called_once_with(
-            "dokumentmedium", ""
-        )
+        mock_client.list_metadata_poster.assert_called_once_with("dokumentmedium", "")
         assert "E" in result
         assert "Elektronisk arkiv" in result
 
@@ -2887,7 +3097,9 @@ class TestMetadataTools:
             {"kode": "EPUB", "kodenavn": "EPUB"},
         ]
 
-        result = noark5_list_metadata(catalog_name="format", filter_str="contains(kodenavn, 'EPUB')")
+        result = noark5_list_metadata(
+            catalog_name="format", filter_str="contains(kodenavn, 'EPUB')"
+        )
 
         mock_client.list_metadata_poster.assert_called_once_with(
             "format",
@@ -2900,7 +3112,9 @@ class TestMetadataTools:
         from noark5_tg_mcp.server import noark5_list_metadata
 
         mock_client = mock_get_client.return_value
-        mock_client.list_metadata_poster.side_effect = Noark5Error(404, "No catalog named 'NonExistent'", "")
+        mock_client.list_metadata_poster.side_effect = Noark5Error(
+            404, "No catalog named 'NonExistent'", ""
+        )
 
         try:
             noark5_list_metadata(catalog_name="NonExistent")
@@ -2946,14 +3160,19 @@ class TestNavigateUpHierarchy:
         mock_client = MagicMock()
         saksmappe = saksmappe_entity("123", "Case under Klasse")
         # Override the _links to add a klasse parent.
-        saksmappe["_links"]["https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/klasse/"] = {
+        saksmappe["_links"][
+            "https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/klasse/"
+        ] = {
             "href": "https://example.com/api/arkivstruktur/klasse/456/",
         }
         mock_client.get_entity.return_value = saksmappe
 
         with patch("noark5_tg_mcp.server._get_client", return_value=mock_client):
             from noark5_tg_mcp.server import noark5_list_parents
-            result = noark5_list_parents("https://example.com/api/sakarkiv/saksmappe/123/")
+
+            result = noark5_list_parents(
+                "https://example.com/api/sakarkiv/saksmappe/123/"
+            )
 
         # Should find klasse as parent (rel ends with "klasse/").
         assert "klasse" in result.lower() or "no parent entities found" not in result
@@ -2970,13 +3189,19 @@ class TestMetadataFilterUrl:
             {  # filtered results.
                 "count": 1,
                 "results": [metadata_catalog_poster("U", "UNKNOWN")],
-                "_links": {"self": {"href": "https://example.com/api/metadata/format?$filter=..."}},
+                "_links": {
+                    "self": {
+                        "href": "https://example.com/api/metadata/format?$filter=..."
+                    }
+                },
             },
         ]
         mock_get.side_effect = side_effects
 
         client = Noark5Client("https://example.com/api/")
-        with patch.object(client, "find_relation", return_value="https://example.com/api/metadata"):
+        with patch.object(
+            client, "find_relation", return_value="https://example.com/api/metadata"
+        ):
             result = client.list_metadata_poster("format", filter_str="kode eq 'U'")
 
         assert len(result) == 1
@@ -2998,10 +3223,15 @@ class TestListParentsBugs(unittest.TestCase):
 
         with patch("noark5_tg_mcp.server._get_client", return_value=mock_client):
             from noark5_tg_mcp.server import noark5_list_parents
-            result = noark5_list_parents("https://example.com/api/arkivstruktur/mappe/abc/")
+
+            result = noark5_list_parents(
+                "https://example.com/api/arkivstruktur/mappe/abc/"
+            )
 
         # Should not find any parents (self-ref is skipped, no real parent links).
-        assert "no parent entities found" in result.lower() or "Self-ref Entity" in result
+        assert (
+            "no parent entities found" in result.lower() or "Self-ref Entity" in result
+        )
 
     def test_list_parents_skips_undermappe(self):
         """list_parents must skip undermappe child-collection link."""
@@ -3012,7 +3242,10 @@ class TestListParentsBugs(unittest.TestCase):
 
         with patch("noark5_tg_mcp.server._get_client", return_value=mock_client):
             from noark5_tg_mcp.server import noark5_list_parents
-            result = noark5_list_parents("https://example.com/api/arkivstruktur/mappe/abc/")
+
+            result = noark5_list_parents(
+                "https://example.com/api/arkivstruktur/mappe/abc/"
+            )
 
         # Should not find any parents (both links are skipped).
         assert "no parent entities found" in result.lower() or "Parent Mappe" in result
@@ -3027,8 +3260,16 @@ class TestListKlassifikasjonssystemer(unittest.TestCase):
         collection = {
             "count": 2,
             "results": [
-                {"systemID": "ks1", "tittel": "System 1", "_links": {"self": {"href": "http://ks1"}}},
-                {"systemID": "ks2", "tittel": "System 2", "_links": {"self": {"href": "http://ks2"}}},
+                {
+                    "systemID": "ks1",
+                    "tittel": "System 1",
+                    "_links": {"self": {"href": "http://ks1"}},
+                },
+                {
+                    "systemID": "ks2",
+                    "tittel": "System 2",
+                    "_links": {"self": {"href": "http://ks2"}},
+                },
             ],
         }
         mock_get.side_effect = [parent, collection]
@@ -3061,7 +3302,9 @@ class TestListChildrenTool(unittest.TestCase):
         root = {
             "systemID": "root",
             "_links": {
-                _rel("arkivstruktur/arkiv/"): {"href": "https://example.com/api/archives"},
+                _rel("arkivstruktur/arkiv/"): {
+                    "href": "https://example.com/api/archives"
+                },
             },
         }
         mock_client._get_json.side_effect = [
@@ -3083,8 +3326,26 @@ class TestListChildrenTool(unittest.TestCase):
 
         mock_client.get_entity.return_value = entity
         mock_client._get_json.side_effect = [
-            {"count": 1, "results": [{"systemID": "c1", "tittel": "Child One", "_links": {"self": {"href": "https://example.com/c1"}}}]},  # undermappe
-            {"count": 1, "results": [{"systemID": "r1", "tittel": "Reg One", "_links": {"self": {"href": "https://example.com/r1"}}}]},  # registrering
+            {
+                "count": 1,
+                "results": [
+                    {
+                        "systemID": "c1",
+                        "tittel": "Child One",
+                        "_links": {"self": {"href": "https://example.com/c1"}},
+                    }
+                ],
+            },  # undermappe
+            {
+                "count": 1,
+                "results": [
+                    {
+                        "systemID": "r1",
+                        "tittel": "Reg One",
+                        "_links": {"self": {"href": "https://example.com/r1"}},
+                    }
+                ],
+            },  # registrering
         ]
 
         result = noark5_list_children("https://example.com/api/arkivstruktur/mappe/m1")
@@ -3102,7 +3363,9 @@ class TestListChildrenTool(unittest.TestCase):
         dokobj = dokumentobjekt_entity()
         mock_client.get_entity.return_value = dokobj
 
-        result = noark5_list_children("https://example.com/api/arkivstruktur/dokumentobjekt/do1")
+        result = noark5_list_children(
+            "https://example.com/api/arkivstruktur/dokumentobjekt/do1"
+        )
         assert "No children found" in result.lower() or "Leaf Entity" not in result
 
     @patch("noark5_tg_mcp.server._get_client")
@@ -3147,19 +3410,17 @@ class TestEntityLinksClassification(unittest.TestCase):
                 # Canonical/self-referencing (points to same URL) - should be SKIPPED.
                 relbase + "dokumentbeskrivelse/": {"href": dokbeskr_url},
                 # Parent link: registrering.
-                relbase + "registrering/": {
-                    "href": dokbeskr_url + "/registrering"
-                },
+                relbase + "registrering/": {"href": dokbeskr_url + "/registrering"},
                 # Child collections (href on own path).
-                relbase + "dokumentobjekt/": {
-                    "href": dokbeskr_url + "/dokumentobjekt"
-                },
+                relbase + "dokumentobjekt/": {"href": dokbeskr_url + "/dokumentobjekt"},
                 relbase + "merknad/": {"href": dokbeskr_url + "/merknad"},
                 # Metadata links - should be SKIPPED entirely.
-                RELBASE + "metadata/dokumentmedium/": {
+                RELBASE
+                + "metadata/dokumentmedium/": {
                     "href": "https://example.com/api/metadata/dokumentmedium"
                 },
-                RELBASE + "loggingogsporing/hendelseslogg/": {
+                RELBASE
+                + "loggingogsporing/hendelseslogg/": {
                     "href": "https://example.com/api/loggingogsporing/log"
                 },
             },
@@ -3218,7 +3479,9 @@ class TestEntityLinksClassification(unittest.TestCase):
         mock_client.get_entity.side_effect = [entity, parent_collection, parent_entity]
         result = noark5_list_parents(dokbeskr_url)
 
-        assert "registrering" in result.lower(), f"dokumentbeskrivelse should find registering as parent: {result}"
+        assert (
+            "registrering" in result.lower()
+        ), f"dokumentbeskrivelse should find registering as parent: {result}"
         assert "Parent Record" in result, f"Parent title not found: {result}"
         assert "r1" in result, f"Parent systemID not found: {result}"
 
@@ -3237,10 +3500,12 @@ class TestEntityLinksClassification(unittest.TestCase):
             "_links": {
                 "self": {"href": mappe_url},
                 relbase + "mappe/": {"href": mappe_url},  # self-ref canonical
-                relbase + "arkivdel/": {
+                relbase
+                + "arkivdel/": {
                     "href": "https://example.com/api/arkivstruktur/mappe/m1/arkivdel"
                 },
-                relbase + "registrering/": {
+                relbase
+                + "registrering/": {
                     "href": mappe_url + "/registrering",
                 },
             },
@@ -3259,7 +3524,9 @@ class TestEntityLinksClassification(unittest.TestCase):
                 in_parent_section = False
 
             if in_parent_section and "registrering/" in line:
-                assert False, f"For mappe, registering/ should NOT be a parent link. Found: {line}"
+                assert (
+                    False
+                ), f"For mappe, registering/ should NOT be a parent link. Found: {line}"
 
 
 class TestGetClient(unittest.TestCase):
@@ -3267,16 +3534,19 @@ class TestGetClient(unittest.TestCase):
 
     def setUp(self):
         from noark5_tg_mcp.server import _server_state
+
         self._saved = dict(_server_state)
 
     def tearDown(self):
         from noark5_tg_mcp.server import _server_state
+
         _server_state.clear()
         _server_state.update(self._saved)
 
     def test_not_authenticated_raises(self):
         """_get_client raises RuntimeError when no credentials set."""
         from noark5_tg_mcp.server import _get_client, _server_state
+
         _server_state["username"] = ""
         _server_state["password"] = ""
         _server_state["access_token"] = None
@@ -3288,6 +3558,7 @@ class TestGetClient(unittest.TestCase):
     def test_with_access_token_skips_login(self, mock_cls):
         """_get_client with access_token does not call login."""
         from noark5_tg_mcp.server import _get_client, _server_state
+
         _server_state["username"] = "user"
         _server_state["password"] = "pass"
         _server_state["access_token"] = "my-token"
@@ -3306,10 +3577,12 @@ class TestSetCredentialsTool(unittest.TestCase):
 
     def setUp(self):
         from noark5_tg_mcp.server import _server_state
+
         self._saved = dict(_server_state)
 
     def tearDown(self):
         from noark5_tg_mcp.server import _server_state
+
         _server_state.clear()
         _server_state.update(self._saved)
 
@@ -3320,13 +3593,17 @@ class TestSetCredentialsTool(unittest.TestCase):
 
         login_result = {
             "_links": {
-                "https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/": {"href": "http://localhost:8092/noark5v5/arkivstruktur/"},
+                "https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/": {
+                    "href": "http://localhost:8092/noark5v5/arkivstruktur/"
+                },
             }
         }
         mock_instance = MagicMock()
         mock_instance.login.return_value = login_result
         mock_cls.return_value = mock_instance
-        mock_cls.parse_links = staticmethod(lambda e: {rel: v["href"] for rel, v in e.get("_links", {}).items()})
+        mock_cls.parse_links = staticmethod(
+            lambda e: {rel: v["href"] for rel, v in e.get("_links", {}).items()}
+        )
 
         result = noark5_set_credentials("user1", "pass1")
         assert _server_state["username"] == "user1"
@@ -3374,8 +3651,12 @@ class TestGetRootLinksTool(unittest.TestCase):
         mock_client = mock_get_client.return_value
         root = {
             "_links": {
-                "https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/": {"href": "http://localhost:8092/noark5v5/arkivstruktur/"},
-                "https://rel.arkivverket.no/noark5/v5/api/sakarkiv/": {"href": "http://localhost:8092/noark5v5/sakarkiv/"},
+                "https://rel.arkivverket.no/noark5/v5/api/arkivstruktur/": {
+                    "href": "http://localhost:8092/noark5v5/arkivstruktur/"
+                },
+                "https://rel.arkivverket.no/noark5/v5/api/sakarkiv/": {
+                    "href": "http://localhost:8092/noark5v5/sakarkiv/"
+                },
             }
         }
         mock_client._get_json.return_value = root
@@ -3398,7 +3679,9 @@ class TestGetEntityTool(unittest.TestCase):
         entity = {"tittel": "My Archive", "systemID": "a1", "_links": {}}
         mock_client.get_entity.return_value = entity
 
-        result = noark5_get_entity("http://localhost:8092/noark5v5/arkivstruktur/arkiv/a1")
+        result = noark5_get_entity(
+            "http://localhost:8092/noark5v5/arkivstruktur/arkiv/a1"
+        )
         assert "My Archive" in result
         assert "a1" in result
         assert "Full JSON" in result
@@ -3409,10 +3692,12 @@ class TestCreateTools(unittest.TestCase):
 
     def setUp(self):
         from noark5_tg_mcp.server import _server_state
+
         self._saved = dict(_server_state)
 
     def tearDown(self):
         from noark5_tg_mcp.server import _server_state
+
         _server_state.clear()
         _server_state.update(self._saved)
 
@@ -3472,7 +3757,9 @@ class TestCreateTools(unittest.TestCase):
             "_links": {"self": {"href": "http://example.com/m/m1"}},
         }
 
-        noark5_create_mappe("http://example.com/ad/ad1", "File One", beskrivelse="Description here")
+        noark5_create_mappe(
+            "http://example.com/ad/ad1", "File One", beskrivelse="Description here"
+        )
         mock_client.create_mappe.assert_called_once()
         call_args = mock_client.create_mappe.call_args
         assert call_args[0][1] == "File One"
@@ -3637,7 +3924,11 @@ class TestFilterEntitiesTool(unittest.TestCase):
 
         mock_client = mock_get_client.return_value
         mock_client.filter_collection.return_value = [
-            {"systemID": "e1", "tittel": "Matched Entity", "_links": {"self": {"href": "http://example.com/e1"}}}
+            {
+                "systemID": "e1",
+                "tittel": "Matched Entity",
+                "_links": {"self": {"href": "http://example.com/e1"}},
+            }
         ]
 
         result = noark5_filter_entities(
@@ -3654,8 +3945,16 @@ class TestFilterEntitiesTool(unittest.TestCase):
 
         mock_client = mock_get_client.return_value
         mock_client.filter_collection.return_value = [
-            {"systemID": "e1", "tittel": "Entity One", "_links": {"self": {"href": "http://example.com/e1"}}},
-            {"systemID": "e2", "tittel": "Entity Two", "_links": {"self": {"href": "http://example.com/e2"}}},
+            {
+                "systemID": "e1",
+                "tittel": "Entity One",
+                "_links": {"self": {"href": "http://example.com/e1"}},
+            },
+            {
+                "systemID": "e2",
+                "tittel": "Entity Two",
+                "_links": {"self": {"href": "http://example.com/e2"}},
+            },
         ]
 
         result = noark5_filter_entities("http://example.com/api/arkivstruktur/arkiv/")
@@ -3714,7 +4013,9 @@ class TestDownloadUploadTools(unittest.TestCase):
             tmp_path = f.name
 
         try:
-            result = noark5_upload_file("http://example.com/reg/r1", tmp_path, mime_type="application/pdf")
+            result = noark5_upload_file(
+                "http://example.com/reg/r1", tmp_path, mime_type="application/pdf"
+            )
             assert "report.pdf" in result
             mock_client.upload_file.assert_called_once()
         finally:
@@ -3854,7 +4155,9 @@ class TestFilterEntitiesEdgeCases(unittest.TestCase):
             }
         ]
 
-        result = noark5_filter_entities("http://example.com/api/arkivstruktur/dokumentobjekt/")
+        result = noark5_filter_entities(
+            "http://example.com/api/arkivstruktur/dokumentobjekt/"
+        )
         assert "report.pdf" in result
         assert "application/pdf" in result or "mime=" in result
 
@@ -3918,7 +4221,9 @@ class TestUploadTool(unittest.TestCase):
             tmp_path = f.name
 
         try:
-            result = noark5_upload_file("http://example.com/reg/r1", tmp_path, mime_type="text/csv")
+            result = noark5_upload_file(
+                "http://example.com/reg/r1", tmp_path, mime_type="text/csv"
+            )
             assert "data.csv" in result
             call_args = mock_client.upload_file.call_args
             assert call_args[0][0] == "http://example.com/reg/r1"
@@ -3927,6 +4232,7 @@ class TestUploadTool(unittest.TestCase):
 
 
 # ---- Coverage gap tests for missed branches (non-OIDC, practical only) ----
+
 
 class TestCreateMethodsNoneAttributes(unittest.TestCase):
     """Test create methods hit the None branch for attributes parameter."""
@@ -4005,7 +4311,9 @@ class TestCreateMethodsNoneAttributes(unittest.TestCase):
         client = Noark5Client("http://api/")
         client.create_arkivskaper("test", "Test Creator")
         call_data = mock_create.call_args[0][1]
-        self.assertEqual(call_data, {"arkivskaperID": "test", "arkivskaperNavn": "Test Creator"})
+        self.assertEqual(
+            call_data, {"arkivskaperID": "test", "arkivskaperNavn": "Test Creator"}
+        )
 
 
 class TestClientListWithFilter(unittest.TestCase):
@@ -4021,7 +4329,8 @@ class TestClientListWithFilter(unittest.TestCase):
             elif url == ".":
                 return {
                     "_links": {
-                        RELBASE + "arkivstruktur/arkivskaper/": {"href": "http://api/ak/"},
+                        RELBASE
+                        + "arkivstruktur/arkivskaper/": {"href": "http://api/ak/"},
                     },
                 }
             raise Noark5Error(404, "Not found", str(url))
@@ -4065,6 +4374,7 @@ class TestServerListParentsError(unittest.TestCase):
 
         mock_client = mock_get_client.return_value
         call_count = [0]
+
         def get_entity_side_effect(url):
             call_count[0] += 1
             if call_count[0] == 1:
@@ -4073,7 +4383,8 @@ class TestServerListParentsError(unittest.TestCase):
                     "tittel": "Test Mappe",
                     "_links": {
                         "self": {"href": "http://api/mappe/m1"},
-                        RELBASE + "arkivstruktur/arkivdel/": {
+                        RELBASE
+                        + "arkivstruktur/arkivdel/": {
                             "href": "http://api/ad/p1",
                         },
                     },
@@ -4104,7 +4415,8 @@ class TestServerListParentsUnexpected(unittest.TestCase):
                     "tittel": "Test Mappe",
                     "_links": {
                         "self": {"href": "http://api/mappe/m1"},
-                        RELBASE + "arkivstruktur/arkivdel/": {
+                        RELBASE
+                        + "arkivstruktur/arkivdel/": {
                             "href": "http://api/ad/p1",
                         },
                     },
@@ -4159,9 +4471,7 @@ class TestServerDownloadAutoPath(unittest.TestCase):
         mock_client = mock_get_client.return_value
         mock_client.download_dokumentobjekt.return_value = b"test content"
 
-        result = noark5_download_dokumentobjekt(
-            "http://api/do/do1", output_path=""
-        )
+        result = noark5_download_dokumentobjekt("http://api/do/do1", output_path="")
         self.assertIn("Downloaded", result)
 
 
@@ -4196,7 +4506,10 @@ class TestServerListChildrenEmpty(unittest.TestCase):
             "tittel": "Test Arkivdel",
             "_links": {
                 "self": {"href": "http://api/arkivstruktur/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {
+                    "href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"
+                },
             },
         }
 
@@ -4209,7 +4522,9 @@ class TestServerListChildrenEmpty(unittest.TestCase):
 
         mock_client._get_json.side_effect = get_json
 
-        result = noark5_list_children(parent_url="http://api/arkivstruktur/arkivdel/ad1")
+        result = noark5_list_children(
+            parent_url="http://api/arkivstruktur/arkivdel/ad1"
+        )
         self.assertIn("No mappe(s) found.", result)
 
 
@@ -4226,8 +4541,12 @@ class TestServerListChildrenFetchError(unittest.TestCase):
             "tittel": "Test Arkivdel",
             "_links": {
                 "self": {"href": "http://api/arkivstruktur/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"},
-                RELBASE + "sakarkiv/saksmappe/": {"href": "http://api/sakarkiv/saksmappe/sm/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {
+                    "href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"
+                },
+                RELBASE
+                + "sakarkiv/saksmappe/": {"href": "http://api/sakarkiv/saksmappe/sm/"},
             },
         }
 
@@ -4242,7 +4561,9 @@ class TestServerListChildrenFetchError(unittest.TestCase):
 
         mock_client._get_json.side_effect = get_json
 
-        result = noark5_list_children(parent_url="http://api/arkivstruktur/arkivdel/ad1")
+        result = noark5_list_children(
+            parent_url="http://api/arkivstruktur/arkivdel/ad1"
+        )
         self.assertIn("Error fetching collection", result)
 
 
@@ -4259,7 +4580,10 @@ class TestServerListChildrenWithFilter(unittest.TestCase):
             "tittel": "Test Arkivdel",
             "_links": {
                 "self": {"href": "http://api/arkivstruktur/arkivdel/ad1"},
-                RELBASE + "arkivstruktur/mappe/": {"href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"},
+                RELBASE
+                + "arkivstruktur/mappe/": {
+                    "href": "http://api/arkivstruktur/arkivdel/ad1/mappe/"
+                },
             },
         }
 
@@ -4274,7 +4598,8 @@ class TestServerListChildrenWithFilter(unittest.TestCase):
         mock_client._get_json.side_effect = get_json
 
         result = noark5_list_children(
-            parent_url="http://api/arkivstruktur/arkivdel/ad1", filter_str="contains(tittel, 'Filter')"
+            parent_url="http://api/arkivstruktur/arkivdel/ad1",
+            filter_str="contains(tittel, 'Filter')",
         )
         self.assertIn("Filtered Mappe", result)
 
@@ -4361,7 +4686,11 @@ class TestServerSetCredentials(unittest.TestCase):
     """Test set_credentials tool."""
 
     @patch.object(Noark5Client, "__init__", return_value=None)
-    @patch.object(Noark5Client, "login", return_value={"_links": {"self": {"href": "http://api/"}}})
+    @patch.object(
+        Noark5Client,
+        "login",
+        return_value={"_links": {"self": {"href": "http://api/"}}},
+    )
     def test_set_credentials_tool(self, mock_login, mock_init):
         from noark5_tg_mcp.server import noark5_set_credentials
 
@@ -4465,9 +4794,8 @@ class TestServerDiscoverChildrenLinks(unittest.TestCase):
         raw_links = {
             RELBASE + "arkivstruktur/mappe/": {"href": "http://api/ad1/mappe/"},
             RELBASE + "sakarkiv/saksmappe/": {"href": "http://api/ad1/sm/"},
-            RELBASE + "arkivstruktur/klassifikasjonssystem/": {
-                "href": "http://api/ad1/ks/"
-            },
+            RELBASE
+            + "arkivstruktur/klassifikasjonssystem/": {"href": "http://api/ad1/ks/"},
         }
 
         result = _discover_children_links(raw_links, "arkivdel")
@@ -4485,7 +4813,8 @@ class TestServerListDokumentobjekter(unittest.TestCase):
                 return {
                     "_links": {
                         "self": {"href": "http://api/dokbeskr/db1"},
-                        RELBASE + "arkivstruktur/dokumentobjekt/": {
+                        RELBASE
+                        + "arkivstruktur/dokumentobjekt/": {
                             "href": "http://api/dokbeskr/db1/dokumentobjekt"
                         },
                     }
@@ -4508,7 +4837,8 @@ class TestServerListKlassifikasjonssystemer(unittest.TestCase):
                 return {
                     "_links": {
                         "self": {"href": "http://api/arkivstruktur/arkivdel/ad1"},
-                        RELBASE + "arkivstruktur/klassifikasjonssystem/": {
+                        RELBASE
+                        + "arkivstruktur/klassifikasjonssystem/": {
                             "href": "http://api/arkivstruktur/arkivdel/ad1/klassifikasjonssystem"
                         },
                     }
@@ -4517,7 +4847,9 @@ class TestServerListKlassifikasjonssystemer(unittest.TestCase):
 
         mock_get_json.side_effect = get_json
         client = Noark5Client("http://api/")
-        result = client.list_klassifikasjonssystemer("http://api/arkivstruktur/arkivdel/ad1")
+        result = client.list_klassifikasjonssystemer(
+            "http://api/arkivstruktur/arkivdel/ad1"
+        )
         self.assertEqual(len(result), 1)
 
 
@@ -4713,4 +5045,3 @@ class TestServerListChildrenTopLevel(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

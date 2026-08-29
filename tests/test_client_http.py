@@ -71,7 +71,9 @@ class TestRequestLowLevel(unittest.TestCase):
         req = call_args[0][0]
         self.assertEqual(req.full_url, "https://example.com/test/path")
         self.assertIn("Authorization", req.headers)
-        self.assertEqual(req.headers["Accept"], "application/vnd.noark5+json, application/json")
+        self.assertEqual(
+            req.headers["Accept"], "application/vnd.noark5+json, application/json"
+        )
 
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
     def test_request_post_with_data(self, mock_urlopen):
@@ -102,7 +104,9 @@ class TestRequestLowLevel(unittest.TestCase):
     def test_request_http_error_json(self, mock_urlopen):
         """_request parses JSON error response."""
         err_resp = MagicMock()
-        err_resp.read.return_value = json.dumps({"feil": {"beskrivelse": "Not found"}}).encode()
+        err_resp.read.return_value = json.dumps(
+            {"feil": {"beskrivelse": "Not found"}}
+        ).encode()
         err_resp.code = 404
         mock_urlopen.side_effect = urr.HTTPError(
             "https://example.com/test", 404, "Not Found", {}, err_resp
@@ -140,7 +144,9 @@ class TestGetJsonLowLevel(unittest.TestCase):
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
     def test_get_json_success(self, mock_urlopen):
         """_get_json parses JSON response correctly."""
-        mock_urlopen.return_value = MockResponse({"systemID": "abc123", "tittel": "Test"})
+        mock_urlopen.return_value = MockResponse(
+            {"systemID": "abc123", "tittel": "Test"}
+        )
 
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
@@ -156,7 +162,9 @@ class TestPostJsonLowLevel(unittest.TestCase):
     @patch("noark5_tg_mcp.client.urllib.request.urlopen")
     def test_post_json_success(self, mock_urlopen):
         """_post_json sends data and parses response."""
-        mock_urlopen.return_value = MockResponse({"systemID": "new-123", "tittel": "Created"})
+        mock_urlopen.return_value = MockResponse(
+            {"systemID": "new-123", "tittel": "Created"}
+        )
 
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
@@ -223,12 +231,16 @@ class TestPatchJsonLowLevel(unittest.TestCase):
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
 
-        result = client._patch_json_with_etag("/entity/123", {"tittel": "Updated"}, '"abc123"')
+        result = client._patch_json_with_etag(
+            "/entity/123", {"tittel": "Updated"}, '"abc123"'
+        )
         self.assertEqual(result["tittel"], "Updated")
 
         req = captured_req["req"]
         self.assertIn("content-type", [k.lower() for k in req.headers.keys()])
-        self.assertEqual(req.headers.get("Content-type"), "application/merge-patch+json")
+        self.assertEqual(
+            req.headers.get("Content-type"), "application/merge-patch+json"
+        )
         self.assertEqual(req.headers.get("If-match"), '"abc123"')
         sent_data = json.loads(req.data.decode())
         self.assertEqual(sent_data, {"tittel": "Updated"})
@@ -266,7 +278,9 @@ class TestPatchJsonLowLevel(unittest.TestCase):
         client._token = "Basic dXNlcjpwYXNz"
 
         with self.assertRaises(Noark5Error) as ctx:
-            client._patch_json_with_etag("/entity/123", {"tittel": "Test"}, '"old-etag"')
+            client._patch_json_with_etag(
+                "/entity/123", {"tittel": "Test"}, '"old-etag"'
+            )
         self.assertEqual(ctx.exception.code, 412)
 
 
@@ -277,8 +291,7 @@ class TestGetWithEtagLowLevel(unittest.TestCase):
     def test_get_with_etag_success(self, mock_urlopen):
         """_get_with_etag returns data and ETag header."""
         resp = MockResponse(
-            {"systemID": "abc", "tittel": "Test"},
-            headers={"ETag": '"v1-etag"'}
+            {"systemID": "abc", "tittel": "Test"}, headers={"ETag": '"v1-etag"'}
         )
         mock_urlopen.return_value = resp
 
@@ -316,7 +329,7 @@ class TestUpdateEntityLowLevel(unittest.TestCase):
             if req.get_method() == "GET":
                 return MockResponse(
                     {"tittel": "Old", "beskrivelse": "Existing"},
-                    headers={"ETag": '"old-etag"'}
+                    headers={"ETag": '"old-etag"'},
                 )
             else:
                 return MockResponse({"tittel": "New", "beskrivelse": "Existing"})
@@ -331,8 +344,12 @@ class TestUpdateEntityLowLevel(unittest.TestCase):
         self.assertGreaterEqual(call_count[0], 2)
 
         # Verify PATCH request used correct ETag (quotes stripped by _get_with_etag).
-        patch_reqs = [c[0][0] for c in mock_urlopen.call_args_list if c[0][0].get_method() == "PATCH"]
-        self.assertEqual(patch_reqs[0].headers.get("If-match"), 'old-etag')
+        patch_reqs = [
+            c[0][0]
+            for c in mock_urlopen.call_args_list
+            if c[0][0].get_method() == "PATCH"
+        ]
+        self.assertEqual(patch_reqs[0].headers.get("If-match"), "old-etag")
 
 
 class TestListOperationsLowLevel(unittest.TestCase):
@@ -346,14 +363,21 @@ class TestListOperationsLowLevel(unittest.TestCase):
         def fake_urlopen(req):
             call_count[0] += 1
             if "archives" in req.full_url:
-                return MockResponse({"results": [{"systemID": "a1", "tittel": "Archive 1"}]})
+                return MockResponse(
+                    {"results": [{"systemID": "a1", "tittel": "Archive 1"}]}
+                )
             else:
-                return MockResponse({
-                    "systemID": "root",
-                    "_links": {
-                        RELBASE + "arkivstruktur/arkiv/": {"href": "https://example.com/archives"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "systemID": "root",
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/arkiv/": {
+                                "href": "https://example.com/archives"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -372,13 +396,20 @@ class TestListOperationsLowLevel(unittest.TestCase):
         def fake_urlopen(req):
             call_count[0] += 1
             if "mapper" in req.full_url:
-                return MockResponse({"results": [{"systemID": "m1", "tittel": "File 1"}]})
+                return MockResponse(
+                    {"results": [{"systemID": "m1", "tittel": "File 1"}]}
+                )
             else:
-                return MockResponse({
-                    "_links": {
-                        RELBASE + "arkivstruktur/mappe/": {"href": "https://example.com/mapper"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/mappe/": {
+                                "href": "https://example.com/mapper"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -416,11 +447,16 @@ class TestCreateEntityLowLevel(unittest.TestCase):
             elif "ny-mappe" in req.full_url:
                 return MockResponse({"dokumentmedium": {"kode": "E"}})
             else:
-                return MockResponse({
-                    "_links": {
-                        RELBASE + "arkivstruktur/ny-mappe/": {"href": "https://example.com/ny-mappe"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/ny-mappe/": {
+                                "href": "https://example.com/ny-mappe"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -443,13 +479,20 @@ class TestCreateEntityLowLevel(unittest.TestCase):
                 err_resp = MagicMock()
                 err_resp.read.return_value = b"Not Found"
                 err_resp.code = 404
-                raise urr.HTTPError("https://example.com/", 404, "Not Found", {}, err_resp)
+                raise urr.HTTPError(
+                    "https://example.com/", 404, "Not Found", {}, err_resp
+                )
             else:
-                return MockResponse({
-                    "_links": {
-                        RELBASE + "arkivstruktur/ny-mappe/": {"href": "https://example.com/ny-mappe"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/ny-mappe/": {
+                                "href": "https://example.com/ny-mappe"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -475,11 +518,16 @@ class TestCreateAtRootLowLevel(unittest.TestCase):
             elif "ny-arkiv" in req.full_url:
                 return MockResponse({})
             else:
-                return MockResponse({
-                    "_links": {
-                        RELBASE + "arkivstruktur/ny-arkiv/": {"href": "https://example.com/ny-arkiv"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/ny-arkiv/": {
+                                "href": "https://example.com/ny-arkiv"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -502,26 +550,41 @@ class TestSearchLowLevel(unittest.TestCase):
             call_count[0] += 1
             if "$search=" in req.full_url:
                 if "archives" in req.full_url:
-                    return MockResponse({
-                        "results": [
-                            {"tittel": "Found Archive", "_links": {"self": {"href": "http://a1"}}}
-                        ]
-                    })
+                    return MockResponse(
+                        {
+                            "results": [
+                                {
+                                    "tittel": "Found Archive",
+                                    "_links": {"self": {"href": "http://a1"}},
+                                }
+                            ]
+                        }
+                    )
                 elif "mapper" in req.full_url:
                     err_resp = MagicMock()
                     err_resp.read.return_value = b"Forbidden"
                     err_resp.code = 403
-                    raise urr.HTTPError("https://example.com/", 403, "Forbidden", {}, err_resp)
+                    raise urr.HTTPError(
+                        "https://example.com/", 403, "Forbidden", {}, err_resp
+                    )
                 else:
                     return MockResponse({"results": []})
             else:
-                return MockResponse({
-                    "systemID": "root",
-                    "_links": {
-                        RELBASE + "arkivstruktur/arkiv/": {"href": "https://example.com/archives"},
-                        RELBASE + "arkivstruktur/mappe/": {"href": "https://example.com/mapper"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "systemID": "root",
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/arkiv/": {
+                                "href": "https://example.com/archives"
+                            },
+                            RELBASE
+                            + "arkivstruktur/mappe/": {
+                                "href": "https://example.com/mapper"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
@@ -541,28 +604,42 @@ class TestSearchLowLevel(unittest.TestCase):
         def fake_urlopen(req):
             if "$search=" in req.full_url:
                 captured_urls.append(req.full_url)
-                return MockResponse({
-                    "results": [
-                        {"tittel": "Matched", "_links": {"self": {"href": "http://x"}}}
-                    ]
-                })
+                return MockResponse(
+                    {
+                        "results": [
+                            {
+                                "tittel": "Matched",
+                                "_links": {"self": {"href": "http://x"}},
+                            }
+                        ]
+                    }
+                )
             else:
-                return MockResponse({
-                    "systemID": "root",
-                    "_links": {
-                        RELBASE + "arkivstruktur/arkiv/": {"href": "https://example.com/archives"},
-                    },
-                })
+                return MockResponse(
+                    {
+                        "systemID": "root",
+                        "_links": {
+                            RELBASE
+                            + "arkivstruktur/arkiv/": {
+                                "href": "https://example.com/archives"
+                            },
+                        },
+                    }
+                )
 
         mock_urlopen.side_effect = fake_urlopen
 
         client = Noark5Client("https://example.com/", "user", "pass")
         client._token = "Basic dXNlcjpwYXNz"
 
-        results = client.search_entities("test", filter_str="contains(tittel, 'Matched')")
+        results = client.search_entities(
+            "test", filter_str="contains(tittel, 'Matched')"
+        )
         self.assertEqual(len(results), 1)
         # Verify both parameters are present.
-        url_with_both = [u for u in captured_urls if "$search=" in u and "$filter=" in u]
+        url_with_both = [
+            u for u in captured_urls if "$search=" in u and "$filter=" in u
+        ]
         self.assertEqual(len(url_with_both), 1)
 
 
@@ -571,7 +648,9 @@ class TestExpandUrl(unittest.TestCase):
 
     def test_expand_relative_path(self):
         client = Noark5Client("https://example.com/api/")
-        self.assertEqual(client._expand_url("/entity/123"), "https://example.com/entity/123")
+        self.assertEqual(
+            client._expand_url("/entity/123"), "https://example.com/entity/123"
+        )
 
     def test_expand_absolute_url_unchanged(self):
         client = Noark5Client("https://example.com/api/")

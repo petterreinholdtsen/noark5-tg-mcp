@@ -160,13 +160,13 @@ mcp = FastMCP(
         "  registrering = record | dokumentbeskrivelse = document description |\n"
         "  dokumentobjekt = document object | saksmappe = case file |\n"
         "  journalpost = registry entry | arkivnotat = record note\n\n"
-         "Hierarchy notes:\n"
-         "- Some entities can be under different parent types but only ONE at a time:\n"
-         "  * mappe: under arkivdel OR klasse OR another mappe\n"
-         "  * klasse: under klassifikasjonssystem OR another klasse\n"
-         "- Entities that CAN have multiple parents simultaneously:\n"
-         "  * dokumentbeskrivelse: linked to 0..* registreringer (e.g., Vedlegg attached to several records)\n"
-         "- Some entities accept different child types:\n"
+        "Hierarchy notes:\n"
+        "- Some entities can be under different parent types but only ONE at a time:\n"
+        "  * mappe: under arkivdel OR klasse OR another mappe\n"
+        "  * klasse: under klassifikasjonssystem OR another klasse\n"
+        "- Entities that CAN have multiple parents simultaneously:\n"
+        "  * dokumentbeskrivelse: linked to 0..* registreringer (e.g., Vedlegg attached to several records)\n"
+        "- Some entities accept different child types:\n"
         "  * klasse: can have klasse, mappe, registrering children\n"
         "  * mappe: can have mappe, registrering children\n"
         "  * arkivdel: can have saksmappe, klassifikasjonssystem, mappe, registrering children\n\n"
@@ -186,6 +186,7 @@ mcp = FastMCP(
 
 
 # ---- Tools ----
+
 
 @mcp.tool()
 def noark5_set_credentials(
@@ -269,7 +270,10 @@ def noark5_get_entity(entity_url: str) -> str:
     """
     client = _get_client()
     entity = client.get_entity(entity_url)
-    return _format_entity(entity) + f"\n\n--- Full JSON ---\n{json.dumps(entity, ensure_ascii=False, indent=2)}"
+    return (
+        _format_entity(entity)
+        + f"\n\n--- Full JSON ---\n{json.dumps(entity, ensure_ascii=False, indent=2)}"
+    )
 
 
 def _discover_children_links(raw_links: dict, etype: str) -> list[tuple[str, str]]:
@@ -291,7 +295,7 @@ def _discover_children_links(raw_links: dict, etype: str) -> list[tuple[str, str
         "saksmappe": {"journalpost", "arkivnotat"},
         "registrering": {"dokumentbeskrivelse"},
         "journalpost": set(),  # secondary entities only (avskrivning, dokumentflyt)
-        "arkivnotat": set(),   # secondary entities only (dokumentflyt)
+        "arkivnotat": set(),  # secondary entities only (dokumentflyt)
         "dokumentbeskrivelse": {"dokumentobjekt"},
     }
 
@@ -362,7 +366,12 @@ def noark5_list_children(parent_url: str = "", filter_str: str = "") -> str:
             lines.append(f"\n  [{len(items)}] {etype_name}:")
             for item in items:
                 sid = item.get("systemID", "?")
-                tittel = item.get("tittel") or item.get("filnavn") or item.get("arkivskaperNavn") or "?"
+                tittel = (
+                    item.get("tittel")
+                    or item.get("filnavn")
+                    or item.get("arkivskaperNavn")
+                    or "?"
+                )
                 href = Noark5Client._self_href(item) or ""
                 lines.append(f"    [{sid}] {tittel} ({href})")
         return "\n".join(lines)
@@ -403,7 +412,12 @@ def noark5_list_children(parent_url: str = "", filter_str: str = "") -> str:
         lines.append(f"\n  [{len(items)}] {type_name}:")
         for item in items:
             sid = item.get("systemID", "?")
-            tittel = item.get("tittel") or item.get("filnavn") or item.get("arkivskaperNavn") or "?"
+            tittel = (
+                item.get("tittel")
+                or item.get("filnavn")
+                or item.get("arkivskaperNavn")
+                or "?"
+            )
             href = Noark5Client._self_href(item) or ""
             lines.append(f"    [{sid}] {tittel} ({href})")
 
@@ -451,7 +465,9 @@ def noark5_search_entities(query: str, filter_str: str = "") -> str:
 
 
 @mcp.tool()
-def noark5_create_arkivskaper(arkivskaper_id: str, navn: str, attributes: str = "{}") -> str:
+def noark5_create_arkivskaper(
+    arkivskaper_id: str, navn: str, attributes: str = "{}"
+) -> str:
     """Create a new arkivskaper (archive creator).
 
     Args:
@@ -504,7 +520,9 @@ def noark5_create_arkivdel(arkiv_url: str, tittel: str, attributes: str = "{}") 
 
 
 @mcp.tool()
-def noark5_create_mappe(parent_url: str, tittel: str, beskrivelse: str = "", attributes: str = "{}") -> str:
+def noark5_create_mappe(
+    parent_url: str, tittel: str, beskrivelse: str = "", attributes: str = "{}"
+) -> str:
     """Create a new mappe (file) under a parent entity.
 
     Args:
@@ -523,7 +541,9 @@ def noark5_create_mappe(parent_url: str, tittel: str, beskrivelse: str = "", att
 
 
 @mcp.tool()
-def noark5_create_registrering(mappe_url: str, tittel: str, attributes: str = "{}") -> str:
+def noark5_create_registrering(
+    mappe_url: str, tittel: str, attributes: str = "{}"
+) -> str:
     """Create a new registrering (registration) under a mappe.
 
     Args:
@@ -541,7 +561,9 @@ def noark5_create_registrering(mappe_url: str, tittel: str, attributes: str = "{
 
 
 @mcp.tool()
-def noark5_create_dokumentbeskrivelse(registrering_url: str, tittel: str, attributes: str = "{}") -> str:
+def noark5_create_dokumentbeskrivelse(
+    registrering_url: str, tittel: str, attributes: str = "{}"
+) -> str:
     """Create a new dokumentbeskrivelse (document description) under a registrering.
 
     Args:
@@ -559,7 +581,9 @@ def noark5_create_dokumentbeskrivelse(registrering_url: str, tittel: str, attrib
 
 
 @mcp.tool()
-def noark5_create_klassifikasjonssystem(arkivdel_url: str, tittel: str, attributes: str = "{}") -> str:
+def noark5_create_klassifikasjonssystem(
+    arkivdel_url: str, tittel: str, attributes: str = "{}"
+) -> str:
     """Create a new klassifikasjonssystem (classification system) under an arkivdel.
 
     Args:
@@ -595,7 +619,9 @@ def noark5_create_klasse(parent_url: str, tittel: str, attributes: str = "{}") -
 
 
 @mcp.tool()
-def noark5_create_saksmappe(parent_url: str, tittel: str, saksaar: int = 0, attributes: str = "{}") -> str:
+def noark5_create_saksmappe(
+    parent_url: str, tittel: str, saksaar: int = 0, attributes: str = "{}"
+) -> str:
     """Create a new saksmappe (case file) under an arkivdel.
 
     Args:
@@ -608,13 +634,17 @@ def noark5_create_saksmappe(parent_url: str, tittel: str, saksaar: int = 0, attr
     """
     client = _get_client()
     attrs = json.loads(attributes) if attributes.strip() else {}
-    result = client.create_saksmappe(parent_url, tittel, saksaar if saksaar else None, attrs or None)
+    result = client.create_saksmappe(
+        parent_url, tittel, saksaar if saksaar else None, attrs or None
+    )
     href = result.get("_links", {}).get("self", {}).get("href", "")
     return f"Created saksmappe '{tittel}'\nURL: {href}\n\n{_format_entity(result)}"
 
 
 @mcp.tool()
-def noark5_create_journalpost(saksmappe_url: str, tittel: str, attributes: str = "{}") -> str:
+def noark5_create_journalpost(
+    saksmappe_url: str, tittel: str, attributes: str = "{}"
+) -> str:
     """Create a new journalpost (registry entry) under a saksmappe.
 
     Args:
@@ -632,7 +662,9 @@ def noark5_create_journalpost(saksmappe_url: str, tittel: str, attributes: str =
 
 
 @mcp.tool()
-def noark5_create_arkivnotat(saksmappe_url: str, tittel: str, attributes: str = "{}") -> str:
+def noark5_create_arkivnotat(
+    saksmappe_url: str, tittel: str, attributes: str = "{}"
+) -> str:
     """Create a new arkivnotat (record note) under a saksmappe.
 
     Args:
@@ -690,7 +722,9 @@ def noark5_update_entity(entity_url: str, changes: str = "{}") -> str:
 
 
 @mcp.tool()
-def noark5_create_secondary_entity(parent_url: str, entity_type: str, field_name: str, field_value: str) -> str:
+def noark5_create_secondary_entity(
+    parent_url: str, entity_type: str, field_name: str, field_value: str
+) -> str:
     """Create a secondary [0..*]/[1..*] entity under a parent (e.g., forfatter, noekkelord).
 
     In N5TG, fields with [0..*] or [1..*] cardinality are modelled as separate entities.
@@ -711,7 +745,9 @@ def noark5_create_secondary_entity(parent_url: str, entity_type: str, field_name
     Returns details of the created secondary entity.
     """
     client = _get_client()
-    result = client.create_secondary_entity(parent_url, entity_type, {field_name: field_value})
+    result = client.create_secondary_entity(
+        parent_url, entity_type, {field_name: field_value}
+    )
     href = result.get("_links", {}).get("self", {}).get("href", "")
     return f"Created secondary entity '{entity_type}' with value '{field_value}'.\nURL: {href}\n\n{_format_entity(result)}"
 
@@ -766,9 +802,9 @@ def noark5_list_parents(entity_url: str) -> str:
     skip_prefixes = ("metadata/", "loggingogsporing/", "login/")
     # Known child-collection and action rels that are NOT parents.
     skip_child_rels = (
-        "undermappe/",   # children: sub-mapper under this mappe/saksmappe
+        "undermappe/",  # children: sub-mapper under this mappe/saksmappe
         "avslutt-mappe/",  # action endpoint (POST-only)
-        "merknad/",      # secondary entity collection
+        "merknad/",  # secondary entity collection
         "kryssreferanse/",  # secondary entity collection
     )
     parent_rels = []
@@ -963,7 +999,7 @@ def noark5_entity_links(entity_url: str) -> str:
         lines.append("\n  Query templates (OData $filter):")
         for rel, href in query_templates:
             clean = Noark5Client.clean_url(href)
-            tmpl = href[len(clean):]  # Show the template part like {?$filter}
+            tmpl = href[len(clean) :]  # Show the template part like {?$filter}
             lines.append(f"    {rel}{tmpl}")
             lines.append(f"      -> base: {clean}")
 
@@ -1087,7 +1123,10 @@ def noark5_download_dokumentobjekt(dokobj_url: str, output_path: str = "") -> st
 
     if not output_path:
         import uuid, tempfile
-        output_path = os.path.join(tempfile.gettempdir(), f"noark5-download-{uuid.uuid4().hex}")
+
+        output_path = os.path.join(
+            tempfile.gettempdir(), f"noark5-download-{uuid.uuid4().hex}"
+        )
 
     with open(output_path, "wb") as f:
         f.write(data)
@@ -1096,7 +1135,9 @@ def noark5_download_dokumentobjekt(dokobj_url: str, output_path: str = "") -> st
 
 
 @mcp.tool()
-def noark5_upload_file(entity_url: str, file_path: str, mime_type: str = "application/octet-stream") -> str:
+def noark5_upload_file(
+    entity_url: str, file_path: str, mime_type: str = "application/octet-stream"
+) -> str:
     """Upload a file to an entity that has a fil relation key.
 
     Any entity whose _links contains the relation key
@@ -1218,7 +1259,10 @@ Usage examples:
     if args.base_url:
         _server_state["base_url"] = args.base_url.rstrip("/") + "/"
 
-    print(f"Noark 5 MCP Server starting, base URL: {_server_state['base_url']}", file=sys.stderr)
+    print(
+        f"Noark 5 MCP Server starting, base URL: {_server_state['base_url']}",
+        file=sys.stderr,
+    )
     mcp.run()
 
 
