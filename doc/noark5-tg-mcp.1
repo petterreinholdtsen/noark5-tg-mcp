@@ -1,0 +1,118 @@
+.TH NOARK5\-TG\-MCP 1 "August 2026" "noark5-tg-mcp 0.1.0" "User Commands"
+.SH NAME
+noark5-tg-mcp \- Model Context Protocol server for Noark 5 tjenestegrensesnitt API
+.SH SYNOPSIS
+.B noark5-tg-mcp
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+\fBnoark5\-tg\-mcp\fR is an MCP (Model Context Protocol) server that provides tools
+for browsing, searching, and managing archive entities through the Noark 5
+tjenestegrensesnitt REST API. It supports authentication via Basic auth or OIDC/OAuth2,
+HATEOAS endpoint discovery, CRUD operations on all major entity types, and OData
+search/filter across collections.
+.PP
+The server exposes MCP tools that can be used by LLM\-powered applications such as
+Claude Desktop or opencode to interact with a Noark 5 archive system.
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Show help message and exit.
+.TP
+.B \-\-base-url \fIURL\fR
+API base URL (overrides the \fBNOARK5_BASE_URL\fR environment variable).
+.TP
+.B \-\-list-tools
+List all available MCP tools with descriptions and exit. Useful for discovering
+what functionality is available without starting the server.
+.SH ENVIRONMENT VARIABLES
+The following environment variables configure the server's behavior:
+.TP
+.I NOARK5_BASE_URL
+API base URL (default: \fBhttp://localhost:8092/noark5v5/\fR).
+.TP
+.I NOARK5_USERNAME
+Authentication username for Basic or OIDC login.
+.TP
+.I NOARK5_PASSWORD
+Authentication password (required together with \fBNOARK5_USERNAME\fR).
+.TP
+.I NOARK5_AUTH_METHOD
+Authentication method: \fBauto\fR, \fBbasic\fR, or \fBoidc\fR (default: \fBauto\fR).
+With \fBauto\fR, the server queries the API root entity to detect available login
+endpoints and prefers OIDC over Basic auth.
+.TP
+.I NOARK5_CLIENT_ID
+OIDC client identifier (optional, used with the \fBoidc\fR method).
+.TP
+.I NOARK5_ACCESS_TOKEN
+Pre\-existing access token. If set, the server skips the login flow entirely and
+uses this token for authentication.
+.SH MCP TOOLS
+The server provides 33+ tools covering:
+.IP \(bu
+Authentication and credential management (\fBnoark5_set_credentials\fR)
+.IP \(bu
+Entity listing (arkiv, arkivdel, mappe, registrering, klasse, saksmappe, etc.)
+.IP \(bu
+Entity creation, update (merge PATCH), and deletion
+.IP \(bu
+OData search and filtering across collections
+.IP \(bu
+HATEOAS navigation (\fBnoark5_entity_links\fR, \fBnoark5_list_parents\fR)
+.IP \(bu
+File download from dokumentobjekt and upload to dokumentbeskrivelse
+.IP \(bu
+Secondary entity creation (forfatter, noekkelord, merknad, etc.)
+.PP
+Run \fBnoark5\-tg\-mcp \-\-list-tools\fR for a complete listing.
+.SH USAGE WITH CLAUDE DESKTOP
+Add the following to your \fIclaude_desktop_config.json\fR:
+.IP
+.EX
+{
+  "mcpServers": {
+    "noark5": {
+      "command": "noark5-tg-mcp",
+      "env": {
+        "NOARK5_BASE_URL": "http://localhost:8092/noark5v5/",
+        "NOARK5_USERNAME": "your-username",
+        "NOARK5_PASSWORD": "your-password"
+      }
+    }
+  }
+}
+.EE
+.SH USAGE WITH OPencode
+Add the following to your \fI~/.config/opencode/opencode.jsonc\fR:
+.IP
+.EX
+{
+  "mcp": {
+    "noark5": {
+      "type": "local",
+      "command": ["noark5-tg-mcp"],
+      "environment": {
+        "NOARK5_BASE_URL": "http://localhost:8092/noark5v5/",
+        "NOARK5_USERNAME": "your-username",
+        "NOARK5_PASSWORD": "your-password"
+      },
+      "enabled": true
+    }
+  }
+}
+.EE
+.SH EXIT STATUS
+.TP
+.B 0
+Successful execution.
+.TP
+.B non-zero
+An error occurred (e.g., failed authentication, network error).
+.SH SEE ALSO
+.RS
+\fBnoark5\-set\-credentials\fR(3) \- MCP tool for setting credentials
+.br
+Noark 5 tjenestegrensesnitt standard: <https://github.com/petterreinholdtsen/noark5-tjenestegrensesnitt-standard>
+.RE
+.SH AUTHOR
+Petter Reinholdtsen <pere@hungry.com>

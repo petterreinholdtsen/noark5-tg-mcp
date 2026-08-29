@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "noark5-tg-mcp"
+version = "0.1.0"
+description = "Model Context Protocol server for Noark 5 tjenestegrensesnitt API (N5TG)"
+readme = "README.md"
+license = { text = "GPL-2.0-or-later" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Petter Reinholdtsen", email = "pere@hungry.com" },
+]
+dependencies = [
+    "mcp[cli]>=1.12.2,<3",
+]
+
+[project.scripts]
+noark5-tg-mcp = "noark5_tg_mcp.server:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.coverage.run]
+source = ["noark5_tg_mcp"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "\\.{\\.\\.",
+    "if TYPE_CHECKING:",
+]

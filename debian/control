@@ -1,0 +1,31 @@
+Source: noark5-tg-mcp
+Section: python
+Priority: optional
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
+Uploaders:
+ Petter Reinholdtsen <pere@debian.org>,
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ pybuild-plugin-pyproject,
+ python3-all,
+ python3-hatchling,
+ python3-mcp,
+ python3-pytest <!nocheck>,
+ python3-pytest-cov <!nocheck>,
+Standards-Version: 4.7.4
+Testsuite: autopkgtest-pkg-pybuild
+
+Package: python3-noark5-tg-mcp
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends},
+ ${python3:Depends}
+Description: MCP server for Noark 5 tjenestegrensesnitt API
+ Model Context Protocol (MCP) server that provides tools for browsing,
+ searching, and managing archive entities through the Noark 5 REST API.
+ .
+ Supports authentication via Basic auth, HATEOAS endpoint discovery, CRUD
+ operations on all major entity types, and OData search/filter across
+ collections.
